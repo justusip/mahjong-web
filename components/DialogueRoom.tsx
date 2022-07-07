@@ -1,74 +1,74 @@
-import React from "react";
+import React, {useState} from "react";
 import classNames from "classnames";
-import {IoChevronBackCircle, IoPersonAdd} from "react-icons/io5";
+import {IoAccessibility, IoChevronBackCircle, IoPersonAdd} from "react-icons/io5";
 import ThreeSectionButton from "./generics/ThreeSectionButton";
-import {GiShintoShrine, GiTempleGate} from "react-icons/gi";
+import {GiFireball, GiShintoShrine, GiTempleGate} from "react-icons/gi";
+import Header from "./generics/Header";
+import HeaderButton from "./generics/HeaderButton";
+import HeaderSection from "./generics/HeaderSection";
 
 export default function DialogueRoom(
     props: {
         onBackClicked: () => void
     }
 ): React.ReactElement {
-    return <div className={"absolute w-full h-full bg-gray-800 flex text-white"}>
-        <div className={"h-screen flex-1 flex flex-col"}>
-            <div className="w-full text-2xl text-white bg-gray-700 border-b-4 border-gray-800 flex">
-                <button className={classNames(
-                    "text-xl cursor-pointer p-4 flex place-items-center gap-2",
-                    "bg-gray-700 border-x border-b-4 border-gray-800 hover:bg-gray-600 active:bg-gray-700",
-                    "active:mt-[4px] active:border-b-0",
-                )}>
-                    <IoChevronBackCircle/>返回
-                </button>
-                <div className={"bg-gray-700 border-x border-b-4 border-gray-800 flex-1 flex place-items-center p-4"}>
-                    房間選項
-                </div>
-            </div>
+    const [mode, setMode] = useState(0);
+
+    return <div className={"w-full flex-1 bg-gray-900 flex text-white"}>
+        <div className={"h-full flex-1 flex flex-col"}>
+            <Header>
+                <HeaderSection>房間選項</HeaderSection>
+                <HeaderButton active={true}>遊戲模式</HeaderButton>
+                <HeaderButton>模式偏好設定</HeaderButton>
+                <HeaderButton>其他</HeaderButton>
+            </Header>
             <div className={"flex-1 overflow-y-scroll"}>
                 <div className={"p-4 flex flex-col gap-4"}>
                     <div className={"text-xl"}>遊戲模式</div>
-                    {
-                        [
-                            {
-                                name: "香港牌",
-                                desc: "廣東牌之舊章；規則簡單，三番起糊，食糊牌型較少。"
-                            },
-                            {
-                                name: "廣東牌",
-                                desc: "廣東牌之舊章；與清章相比，增加「六獨」（平、斷、不、門、缺、眼）、「十八番」及「無奇不有」食糊牌型。"
-                            },
-                            {
-                                name: "台灣牌",
-                                desc: "廣東牌之舊章；與清章相比，增加「六獨」（平、斷、不、門、缺、眼）、「十八番」及「無奇不有」食糊牌型。"
-                            },
-                            {
-                                name: "日本牌",
-                                desc: "廣東牌之舊章；與清章相比，增加「六獨」（平、斷、不、門、缺、眼）、「十八番」及「無奇不有」食糊牌型。"
-                            },
-                            {
-                                name: "日麻三人",
-                                desc: "廣東牌之舊章；與清章相比，增加「六獨」（平、斷、不、門、缺、眼）、「十八番」及「無奇不有」食糊牌型。"
-                            },
-                        ].map((o, i) =>
-                            <div key={i}
-                                 className={classNames(
-                                     "text-white transition-all",
-                                     "border-b-4 active:mt-[4px] active:border-b-0",
-                                     "bg-gray-700 border-gray-900 text-gray-200 hover:bg-gray-600 active:bg-gray-700",
-                                     " p-4"
-                                 )}>
-                                <div className={"text-3xl"}>{o.name}</div>
-                                <div className={"text-xl"}>{o.desc}</div>
-                            </div>)
-                    }
+                    <div className={"w-full flex gap-4"}>
+                        {
+                            [
+                                {
+                                    name: "香港麻雀",
+                                    desc: "三番起糊；食糊牌型較少；規則較簡單。",
+                                    icon: <div>🥟</div>
+                                },
+                                {
+                                    name: "台灣麻雀",
+                                    desc: "每人十六隻牌；食糊牌型較多；規則較複雜。",
+                                    icon: <div>🧋</div>
+                                },
+                                {
+                                    name: "日本麻雀",
+                                    desc: "加入立直、懸賞牌等元素；規則較複雜。",
+                                    icon: <div>⛩</div>
+                                },
+                                {
+                                    name: "日本三麻",
+                                    desc: "三人一臺嘅日本麻雀。",
+                                    icon: <div>⛩</div>
+                                },
+                                {
+                                    name: "瑪灼血戰",
+                                    desc: "每局開始前先調牌。",
+                                    icon: <div>☄️</div>
+                                },
+                            ].map((o, i) =>
+                                <ThreeSectionButton key={i}
+                                                    icon={o.icon}
+                                                    name={o.name}
+                                                    desc={o.desc}
+                                                    active={i === mode}
+                                                    disabled={!(i === 0 || i === 2)}
+                                                    onClick={() => setMode(i)}
+                                                    className={"flex-1 h-[400px]"}/>)
+                        }
+                    </div>
                 </div>
             </div>
         </div>
-        <div className={"h-screen w-[400px] flex flex-col"}>
-            <div className="w-full text-2xl text-white bg-gray-700 border-b-4 border-gray-800 flex">
-                <div className={"bg-gray-700 border-x border-b-4 border-gray-800 flex-1 flex place-items-center p-4"}>
-                    玩家列表
-                </div>
-            </div>
+        <div className={"h-full w-[400px] flex flex-col"}>
+            <Header><HeaderSection>玩家列表</HeaderSection></Header>
             <div className={"flex-1 flex flex-col gap-4 p-4"}>
                 {
                     [

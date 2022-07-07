@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
-import TileButton from "./TileButton";
+import TileButton from "./generics/TileButton";
 import Post from "../utils/PostFetch";
 import Milliseconds from "../utils/Milliseconds";
 import TileDialogue from "./TileDialogue";
-import TileTextbox from "./TileTextbox";
+import TileTextbox from "./generics/TileTextbox";
 import Overlay from "./Overlay";
 import {useSharedState} from "./Store";
 import {GiEarthAsiaOceania, GiMushroomHouse, GiPodium} from "react-icons/gi";
@@ -17,6 +17,10 @@ import ThreeSectionButton from "./generics/ThreeSectionButton";
 import {CSSTransition} from "react-transition-group";
 import IntrinsicButton from "./generics/IntrinsicButton";
 import DialogueRoom from "./DialogueRoom";
+import {ms} from "../misc/Delay";
+import HeaderButton from "./generics/HeaderButton";
+import Header from "./generics/Header";
+import HeaderSection from "./generics/HeaderSection";
 
 export default function PageMain(): React.ReactElement {
 
@@ -38,13 +42,33 @@ export default function PageMain(): React.ReactElement {
     const [frdsAddShown, setFrdsAddShown] = useState(false);
     const [frdsAddUID, setFrdsAddUID] = useState("");
 
-    const [page, setPage] = useState(0);
+    const [page, setPageRaw] = useState(0);
 
     const [globals, setGlobals] = useSharedState();
 
-    return <div className="w-full h-screen bg-[url(/img/bg.jpg)]a bg-gray-900 bg-cover bg-center flex flex-col">
-        <CSSTransition classNames="magnify" in={page == 0} timeout={100} unmountOnExit>
-            <div className={"w-full flex-1 flex pb-12"}>
+    const setPage = async (toPage: number) => {
+        setPageRaw(-1);
+        await ms(400);
+        setPageRaw(toPage);
+    };
+
+    return <div className={classNames(
+        "w-full h-screen ",
+        "bg-[url(/img/bg.jpg)] bg-gray-900 bg-cover bg-center",
+        "flex flex-col flex-col-reverse overflow-hidden"
+    )}>
+        <CSSTransition classNames="slideup" in={page == 0} timeout={200} unmountOnExit>
+            <Footer onClicks={[null, () => setFrdLstShown(true), null, null]}/>
+        </CSSTransition>
+        <CSSTransition classNames="slideup" in={page == 1 || page == 2} timeout={200} unmountOnExit>
+            <Header>
+                <HeaderButton onClick={() => setPage(0)}><IoChevronBackCircle/>返回</HeaderButton>
+                <HeaderSection>私人牌局</HeaderSection>
+            </Header>
+        </CSSTransition>
+
+        <CSSTransition classNames="fade" in={page == 0} timeout={100} unmountOnExit>
+            <div className={"w-full flex-1 flex"}>
                 <div className={"w-3/5 flex-1 p-16 flex place-content-center place-items-stretch gap-4"}>
                     {
                         [
@@ -86,19 +110,23 @@ export default function PageMain(): React.ReactElement {
                 </div>
             </div>
         </CSSTransition>
-        <CSSTransition classNames="magnify" in={page == 1} timeout={100} unmountOnExit>
-            <div className={"absolute w-full h-full flex place-items-center place-content-center gap-4"}>
+
+        <CSSTransition classNames="fade" in={page == 1} timeout={100} unmountOnExit>
+            <div className={"w-full flex-1 flex place-items-center place-content-center gap-4"}>
                 <ThreeSectionButton icon={<IoAddCircle/>}
                                     name={"創建房間"}
                                     desc={"創建一間新嘅房間以邀請朋友加入"}
-                                    onClick={() => setPage(2)}/>
+                                    onClick={() => setPage(2)}
+                                    className={"w-[300px] h-[300px]"}/>
                 <ThreeSectionButton icon={<IoEnter/>}
                                     name={"加入房間"}
-                                    desc={"如果朋友已經開咗一間房，您可以輸入房號加入房間"}/>
+                                    desc={"如果朋友已經開咗一間房，您可以輸入房號加入房間"}
+                                    className={"w-[300px] h-[300px]"}/>
             </div>
         </CSSTransition>
-        <CSSTransition classNames="magnify" in={page == 2} timeout={100} unmountOnExit>
-            <DialogueRoom/>
+
+        <CSSTransition classNames="fade" in={page == 2} timeout={100} unmountOnExit>
+            <DialogueRoom onBackClicked={() => setPage(1)}/>
         </CSSTransition>
         <CSSTransition classNames="magnify" in={page == 3} timeout={100} unmountOnExit>
             <div className={"absolute w-full h-full flex flex-col"}>
@@ -112,22 +140,6 @@ export default function PageMain(): React.ReactElement {
                 </div>
             </div>
         </CSSTransition>
-        {/*<CSSTransition classNames="slidedown" in={page != 0} timeout={200} unmountOnExit>*/}
-        {/*    <div className="absolute z-30 w-full text-2xl text-white bg-gray-700 border-b-4 border-gray-800 flex">*/}
-        {/*        <button className={classNames(*/}
-        {/*            "text-xl cursor-pointer p-4 flex place-items-center gap-2",*/}
-        {/*            "bg-gray-700 border-x border-b-4 border-gray-800 hover:bg-gray-600 active:bg-gray-700",*/}
-        {/*            "active:mt-[4px] active:border-b-0",*/}
-        {/*        )}*/}
-        {/*                onClick={() => setPage(0)}>*/}
-        {/*            <IoChevronBackCircle/>返回*/}
-        {/*        </button>*/}
-        {/*        <div className={"bg-gray-700 border-x border-b-4 border-gray-800 flex-1 flex place-items-center p-4"}>*/}
-        {/*            私人牌局*/}
-        {/*        </div>*/}
-        {/*    </div>*/}
-        {/*</CSSTransition>*/}
-        {/*<Footer onClicks={[null, () => setFrdLstShown(true), null, null]}/>*/}
         <Overlay shown={frdLstShown}
                  transition={"slideleft"}
                  onClick={() => setFrdLstShown(false)}

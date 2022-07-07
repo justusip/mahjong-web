@@ -1,8 +1,4 @@
-import React, {MouseEventHandler} from "react";
-import TileTextbox from "./TileTextbox";
-import TileButton from "./TileButton";
-import Milliseconds from "../utils/Milliseconds";
-import {CSSTransition} from "react-transition-group";
+import React from "react";
 import classNames from "classnames";
 
 export default function TileDialogue(props: React.PropsWithChildren<{

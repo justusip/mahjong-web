@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import Milliseconds from "../utils/Milliseconds";
-import TileButton from "./TileButton";
-import TileTextbox from "./TileTextbox";
+import TileButton from "./generics/TileButton";
+import TileTextbox from "./generics/TileTextbox";
 import TileDialogue from "./TileDialogue";
 import Post from "../utils/PostFetch";
 import {useSharedState} from "./Store";

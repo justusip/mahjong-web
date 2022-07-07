@@ -7,7 +7,8 @@ export default function ThreeSectionButton(
     props: React.ButtonHTMLAttributes<HTMLButtonElement> & {
         icon: React.ReactElement,
         name: string,
-        desc: string
+        desc: string,
+        active?: boolean
     }
 ): React.ReactElement {
     return <IntrinsicButton {...props}

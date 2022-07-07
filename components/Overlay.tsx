@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {CSSTransition} from "react-transition-group";
 import classNames from "classnames";
-
-const ms = (ms: number) => new Promise(r => setInterval(r, ms));
+import {ms} from "../misc/Delay";
 
 export default function Overlay(props: React.PropsWithChildren<{
     shown: boolean,
