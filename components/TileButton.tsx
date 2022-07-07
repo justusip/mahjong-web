@@ -10,7 +10,7 @@ export default function TileButton(
     return <div className={props.className}>
         <button className={classNames(`
             min-w-full
-            border-b-8 border-b-black/10
+            border-b-4 border-b-black/10
             px-8 py-2
             bg-gray-200
             cursor-pointer
@@ -18,8 +18,8 @@ export default function TileButton(
             disabled:text-neutral-300
             disabled:cursor-not-allowed
             hover:text-white focus:text-white enabled:active:text-white
-            active:mt-2 active:border-b-0
-            disabled:mt-0 disabled:border-b-8  
+            active:mt-[4px] active:border-b-0
+            disabled:mt-0 disabled:border-b-4  
         `,
             //TODO above use enabled selector instead
 

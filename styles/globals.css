@@ -12,6 +12,10 @@
     src: url("/fonts/jf-openhuninn-1.1.ttf");
 }
 
+:root {
+    color-scheme: dark;
+}
+
 * {
     box-sizing: border-box;
 }

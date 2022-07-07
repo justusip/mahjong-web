@@ -1,13 +1,14 @@
 .fade-enter-active,
 .fade-exit-active {
-    transition: opacity linear .1s;
+    transition: opacity linear 100ms;
 }
 
 .fade-enter {
     opacity: 0;
 }
 
-.fade-enter-active, .fade-exit {
+.fade-enter-active,
+.fade-exit {
     opacity: 1;
 }
 
@@ -17,7 +18,7 @@
 
 .magnify-enter-active,
 .magnify-exit-active {
-    transition: opacity linear .1s, transform ease .1s;
+    transition: opacity linear 100ms, transform ease 100ms;
 }
 
 .magnify-enter {
@@ -38,20 +39,38 @@
 
 .slideleft-enter-active,
 .slideleft-exit-active {
-    transition: transform ease .1s;
+    transition: transform ease-in-out 100ms;
 }
 
 .slideleft-enter {
     transform: translateX(-100%);
 }
 
-.slideleft-enter-active, .slideleft-exit {
+.slideleft-enter-active,
+.slideleft-exit {
     transform: translateX(0);
 }
 
 .slideleft-exit-active {
-    opacity: 0;
-    transform: scale(.9);
+    transform: translateX(-100%);
+}
+
+.slidedown-enter-active,
+.slidedown-exit-active {
+    transition: transform ease-out 200ms;
+}
+
+.slidedown-enter {
+    transform: translateY(-100%);
+}
+
+.slidedown-enter-active,
+.slidedown-exit {
+    transform: translateY(0);
+}
+
+.slidedown-exit-active {
+    transform: translateY(-100%);
 }
 
 @keyframes spin {
