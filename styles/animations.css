@@ -1,0 +1,64 @@
+.fade-enter-active,
+.fade-exit-active {
+    transition: opacity linear .1s;
+}
+
+.fade-enter {
+    opacity: 0;
+}
+
+.fade-enter-active, .fade-exit {
+    opacity: 1;
+}
+
+.fade-exit-active {
+    opacity: 0;
+}
+
+.magnify-enter-active,
+.magnify-exit-active {
+    transition: opacity linear .1s, transform ease .1s;
+}
+
+.magnify-enter {
+    opacity: 0;
+    transform: scale(.9);
+}
+
+.magnify-enter-active,
+.magnify-exit {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.magnify-exit-active {
+    opacity: 0;
+    transform: scale(.9);
+}
+
+.slideleft-enter-active,
+.slideleft-exit-active {
+    transition: transform ease .1s;
+}
+
+.slideleft-enter {
+    transform: translateX(-100%);
+}
+
+.slideleft-enter-active, .slideleft-exit {
+    transform: translateX(0);
+}
+
+.slideleft-exit-active {
+    opacity: 0;
+    transform: scale(.9);
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

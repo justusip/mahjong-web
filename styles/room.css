@@ -1,0 +1,92 @@
+.body-room {
+    width: 100%;
+    height: 100vh;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url("/img/bg.jpg");
+    background-size: cover;
+    font-family: hannotate, sans-serif;
+}
+
+.splash-panel {
+}
+
+#splash-right {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    padding-left: 16px;
+    border-left: #eee 1px solid;
+    margin-left: 16px;
+}
+
+#splash-right > :not(:last-child) {
+    margin-bottom: 16px;
+}
+
+.room-grid {
+    width: 128px;
+    height: 128px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.room-grid:not(:first-child) {
+    margin-left: 16px;
+}
+
+.room-grid-occupied {
+    border: 1px solid #aaa;
+}
+
+.room-grid-add {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.room-grid-empty {
+    background: #eee;
+}
+
+.room-grid-icon {
+    width: 24px;
+}
+
+.room-grid-label {
+    margin-top: 4px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+}
+
+#room-btn-ready {
+    margin-left: 16px;
+}
+
+#room-code-desc {
+    font-size: 12px;
+}
+
+#room-code {
+    margin-left: 8px;
+    margin-right: auto;
+    width: 64px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.room-grid-remove {
+    cursor: pointer;
+    width: 16px;
+    margin-left: 4px;
+}

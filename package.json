@@ -1,0 +1,42 @@
+{
+    "name": "mahjong",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "@types/animejs": "^3.1.4",
+        "@types/css-font-loading-module": "^0.0.7",
+        "@types/react": "^17.0.40",
+        "@types/react-dom": "^17.0.13",
+        "@types/react-event-listener": "^0.4.12",
+        "@types/react-transition-group": "^4.4.4",
+        "@types/socket.io-client": "^3.0.0",
+        "@types/three": "^0.138.0",
+        "animejs": "^3.2.1",
+        "autoprefixer": "^10.4.2",
+        "buffer": "^6.0.3",
+        "classnames": "^2.3.1",
+        "lil-gui": "^0.16.1",
+        "next": "^12.1.0",
+        "postcss": "^8.4.8",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-event-listener": "^0.6.6",
+        "react-icons": "^4.3.1",
+        "react-tracked": "^1.7.8",
+        "react-transition-group": "^4.4.2",
+        "socket.io-client": "^4.4.1",
+        "tailwindcss": "^3.0.23",
+        "three": "^0.138.3"
+    },
+    "devDependencies": {
+        "@types/node": "^17.0.21",
+        "eslint": "^8.11.0",
+        "eslint-config-next": "^12.1.0",
+        "typescript": "^4.6.2"
+    }
+}
