@@ -10,12 +10,12 @@ interface Globals {
 }
 
 const initialState: Globals = {
-    page: 2,
-    // me: null,
-    me: {
-        uid: "",
-        username: "DEBUG"
-    }
+    page: 1,
+    me: null,
+    // me: {
+    //     uid: "",
+    //     username: "DEBUG"
+    // }
 };
 
 const useMyState = () => useState<Globals>(initialState);

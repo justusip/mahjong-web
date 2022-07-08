@@ -87,7 +87,7 @@ export default class Game {
     // onSplashMount(layoutSplash: PageLogin) {
     //     layoutSplash.setState({
     //         onConnect: async (roomCode: string, playerName: string): Promise<number> => {
-    //             return await Game.ins.join(roomCode, playerName);
+    //             return await GameManager.ins.join(roomCode, playerName);
     //         }
     //     });
     // }

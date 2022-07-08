@@ -1,17 +1,13 @@
 import React, {useState} from "react";
-import classNames from "classnames";
-import {IoAccessibility, IoChevronBackCircle, IoPersonAdd} from "react-icons/io5";
-import ThreeSectionButton from "./generics/ThreeSectionButton";
-import {GiFireball, GiShintoShrine, GiTempleGate} from "react-icons/gi";
-import Header from "./generics/Header";
-import HeaderButton from "./generics/HeaderButton";
-import HeaderSection from "./generics/HeaderSection";
+import {IoPersonAdd} from "react-icons/io5";
+import ThreeSectionButton from "../generics/ThreeSectionButton";
+import Header from "../pieces/Header";
+import HeaderButton from "../generics/HeaderButton";
+import HeaderSection from "../generics/HeaderSection";
 
-export default function DialogueRoom(
-    props: {
-        onBackClicked: () => void
-    }
-): React.ReactElement {
+export default function FragRoom(props: {
+    onBackClicked: () => void
+}): React.ReactElement {
     const [mode, setMode] = useState(0);
 
     return <div className={"w-full flex-1 bg-gray-900 flex text-white"}>
@@ -31,27 +27,27 @@ export default function DialogueRoom(
                                 {
                                     name: "香港麻雀",
                                     desc: "三番起糊；食糊牌型較少；規則較簡單。",
-                                    icon: <div>🥟</div>
+                                    icon: <img src={"/img/icons/dumpling_1f95f.png"}/>
                                 },
                                 {
                                     name: "台灣麻雀",
                                     desc: "每人十六隻牌；食糊牌型較多；規則較複雜。",
-                                    icon: <div>🧋</div>
+                                    icon: <img src={"/img/icons/bubble-tea_1f9cb.png"}/>
                                 },
                                 {
                                     name: "日本麻雀",
                                     desc: "加入立直、懸賞牌等元素；規則較複雜。",
-                                    icon: <div>⛩</div>
+                                    icon: <img src={"/img/icons/shinto-shrine_26e9-fe0f.png"}/>
                                 },
                                 {
                                     name: "日本三麻",
                                     desc: "三人一臺嘅日本麻雀。",
-                                    icon: <div>⛩</div>
+                                    icon: <img src={"/img/icons/shinto-shrine_26e9-fe0f.png"}/>
                                 },
                                 {
                                     name: "瑪灼血戰",
                                     desc: "每局開始前先調牌。",
-                                    icon: <div>☄️</div>
+                                    icon: <img src={"/img/icons/comet_2604-fe0f.png"}/>
                                 },
                             ].map((o, i) =>
                                 <ThreeSectionButton key={i}

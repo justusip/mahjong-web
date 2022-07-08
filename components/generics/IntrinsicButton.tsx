@@ -6,11 +6,10 @@ export default function IntrinsicButton(
 ): React.ReactElement {
     return <button {...props}
                    className={classNames(
-                       "text-white transition-all",
-                       "border-b-4",
-                       "border-gray-900 text-gray-200",
-                       {"active:mt-[4px] active:border-b-0 hover:bg-gray-600 active:bg-gray-700 bg-gray-700 cursor-pointer": !props.disabled && !props.active},
-                       {"mt-[4px] border-b-0 cursor-not-allowed bg-gray-800": !props.disabled && props.active},
+                       "text-white transition-all p-2",
+                       "border-b-4 border-black/10 text-gray-200",
+                       {"active:mt-[4px] bg-gray-600 active:border-b-0 hover:bg-gray-500 active:bg-gray-500 cursor-pointer": !props.disabled && !props.active},
+                       {"mt-[4px] border-b-0 cursor-not-allowed bg-gray-800 opacity-50": !props.disabled && props.active},
                        {"grayscale opacity-50 bg-gray-700": props.disabled},
                        props.className
                    )}>

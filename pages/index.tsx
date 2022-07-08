@@ -19,7 +19,7 @@ const Home: NextPage = () => {
     //         return <PageRoom ref={r => layoutRoom = r}
     //                          onExit={() => {
     //                              setPage(0);
-    //                              Game.ins.disconnect();
+    //                              GameManager.ins.disconnect();
     //                          }}/>;
     //     case 2:
     //         return <PageGame ref={r => layoutGame = r}

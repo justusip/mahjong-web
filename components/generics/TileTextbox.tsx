@@ -1,28 +1,9 @@
 import React, {ChangeEventHandler, MouseEventHandler} from "react";
 
-export default function TileTextbox(props: React.PropsWithChildren<{
-    className: string,
-    placeholder: string,
-    maxLength: number,
-    type?: string,
-    onChange: ChangeEventHandler<HTMLInputElement> | undefined,
-    value: string
-}>): React.ReactElement {
+export default function TileTextbox(props: React.InputHTMLAttributes<HTMLInputElement>): React.ReactElement {
     return <div className={props.className}>
-        <input className="
-            w-full
-            h-full
-            p-2
-            focus:outline-none
-            border-2
-            hover:border-lime-500
-            focus:border-lime-500
-        "
-               value={props.value}
-               onChange={props.onChange}
-               maxLength={props.maxLength}
-               type={props.type}
-               placeholder={props.placeholder}>
+        <input {...props}
+               className="w-full h-full p-2 focus:outline-none border-2 border-gray-500 hover:border-gray-300 focus:border-gray-300">
         </input>
     </div>;
 }

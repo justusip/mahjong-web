@@ -1,13 +1,17 @@
 import React, {useEffect, useState} from "react";
 import {CSSTransition} from "react-transition-group";
 import classNames from "classnames";
-import {ms} from "../misc/Delay";
+import {ms} from "../../utils/Delay";
+import TileDialogue from "../generics/TileDialogue";
 
-export default function Overlay(props: React.PropsWithChildren<{
+export default function OverlayDialogue(props: React.PropsWithChildren<{
     shown: boolean,
     transition?: string
     onClick?: () => void,
     centered?: boolean
+} & {
+    className?: string,
+    header?: string,
 }>): React.ReactElement {
 
     const [overlayShown, setOverlayShown] = useState(false);
@@ -32,15 +36,14 @@ export default function Overlay(props: React.PropsWithChildren<{
                           unmountOnExit>
         <div className={classNames(
             "absolute z-40 inset-0 bg-black/50",
-            (props.centered == null ? true : props.centered) && "flex place-items-center place-content-center"
+            {"flex place-items-center place-content-center": props.centered}
         )}
              onClick={props.onClick}>
-            <CSSTransition classNames={props.transition}
-                           in={contentShown}
-                           timeout={100}
-                           unmountOnExit>
+            <TileDialogue in={contentShown}
+                          className={props.className}
+                          header={props.header}>
                 {props.children}
-            </CSSTransition>
+            </TileDialogue>
         </div>
     </CSSTransition>;
 }

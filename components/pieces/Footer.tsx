@@ -1,9 +1,9 @@
 import {IoChatboxEllipses, IoHelpCircle, IoPeople, IoSettings} from "react-icons/io5";
 import classNames from "classnames";
 import React from "react";
-import Header from "./generics/Header";
-import HeaderSection from "./generics/HeaderSection";
-import HeaderButton from "./generics/HeaderButton";
+import Header from "./Header";
+import HeaderSection from "../generics/HeaderSection";
+import HeaderButton from "../generics/HeaderButton";
 
 export default function Footer(
     props: {
@@ -16,7 +16,8 @@ export default function Footer(
             [
                 {
                     icon: <IoSettings/>,
-                    name: "設定"
+                    name: "設定",
+                    onClick: () => props.onClicks[0]()
                 },
                 {
                     icon: <IoPeople/>,
@@ -31,7 +32,7 @@ export default function Footer(
                     icon: <IoHelpCircle/>,
                     name: "關於"
                 }
-            ].map((o, i) => <HeaderButton onClick={o.onClick}>{o.icon}{o.name}</HeaderButton>)
+            ].map((o, i) => <HeaderButton key={i} onClick={o.onClick}>{o.icon}{o.name}</HeaderButton>)
         }
     </Header>;
 }

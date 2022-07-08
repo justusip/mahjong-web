@@ -1,13 +1,12 @@
 import React, {useEffect, useState} from "react";
-import Milliseconds from "../utils/Milliseconds";
-import TileButton from "./generics/TileButton";
+import IntrinsicButton from "./generics/IntrinsicButton";
 import TileTextbox from "./generics/TileTextbox";
-import TileDialogue from "./TileDialogue";
+import TileDialogue from "./generics/TileDialogue";
 import Post from "../utils/PostFetch";
 import {useSharedState} from "./Store";
+import {ms} from "../utils/Delay";
 
 export default function PageLogin(): React.ReactElement {
-
     const [globals, setGlobals] = useSharedState();
 
     const [page, setPage] = useState(0);
@@ -32,7 +31,7 @@ export default function PageLogin(): React.ReactElement {
                 }
             }
 
-            await Milliseconds(100);
+            await ms(100);
             setPage(1);
         })();
     }, []);
@@ -97,113 +96,85 @@ export default function PageLogin(): React.ReactElement {
         setGlobals((prev) => ({...prev, page: 1})); //TODO
     };
 
-    return <div className="w-full h-screen bg-gray-700 flex place-content-center place-items-center">
-        <TileDialogue shown={page == -2} className={"flex place-items-center"}>
+    return <div className="w-full h-screen bg-gray-800 flex place-content-center place-items-center">
+        <TileDialogue in={page == -2} className={"flex place-items-center"}>
             <div className={"flex"}>
                 <img className={"w-4 h-4 animate-spin"} src="/img/loading.svg"/>
                 <div className={"ml-2"}>載入中</div>
             </div>
         </TileDialogue>
-        <TileDialogue shown={page == -1}
-                      header={<div className={"text-2xl font-bold"}>錯誤</div>}>
+        <TileDialogue in={page == -1}
+                      header={`錯誤`}>
             <div className={"text-1xl"}>{errorMsg}</div>
-            <TileButton className={"mt-4"}
-                        onClick={async () => setPage(prevPage)}>
+            <IntrinsicButton onClick={async () => setPage(prevPage)}>
                 確定
-            </TileButton>
+            </IntrinsicButton>
         </TileDialogue>
-        <TileDialogue
-            className={"w-full max-w-lg"}
-            shown={page == 1}
-            header={
-                <>
-                    <div className="text-3xl font-bold">歡迎返嚟</div>
-                    <div className="text-1xl">包羅香港、日本、臺灣同其他唔同地方嘅玩法，?令您能夠喺網上同朋友或世界各地嘅玩家享受打麻雀嘅樂趣。</div>
-                </>
-            }>
-            <div className="text-gray-500">請喺下面輸入你個名，或者留空佢，我哋就會幫你改翻個。</div>
-            <TileTextbox className="mt-2"
-                         placeholder="顯示名稱"
-                         maxLength={16}
-                         value={username}
+        <TileDialogue in={page == 1} header={`歡迎返嚟`}>
+            請喺下面輸入你嘅用户名稱。
+            <TileTextbox placeholder="顯示名稱" maxLength={16} value={username}
                          onChange={e => setUsername(e.target.value)}/>
-            <TileButton className="mt-4 w-auto"
-                        onClick={onPlayClicked}
-                        disabled={username === ""}>
-                遊玩
-            </TileButton>
+            <IntrinsicButton onClick={onPlayClicked} disabled={username === ""}>遊玩</IntrinsicButton>
         </TileDialogue>
-        <TileDialogue
-            className={"max-w-lg"}
-            shown={page == 4}
-            header={<div className="text-2xl font-bold">歡迎返嚟，{username}！</div>}>
-            <div className="text-gray-500">呢個名係屬於一個已經註冊咗嘅帳戶，如果你係想登入呢個帳戶嘅話，請喺下面打密碼，否則請返去用過第二個名。</div>
-            <TileTextbox className="mt-2"
-                         placeholder="密碼"
+        <TileDialogue in={page == 4} header={`歡迎返嚟，{username}！`}>
+            呢個名係屬於一個已經註冊咗嘅帳戶，如果你係想登入呢個帳戶嘅話，請喺下面打密碼，否則請返去用過第二個名。
+            <TileTextbox placeholder="密碼"
                          maxLength={16}
                          type={"password"}
                          value={password}
                          onChange={e => setPassword(e.target.value)}/>
-            <div className={"flex gap-4 mt-4"}>
-                <TileButton className="flex-1"
-                            type={"negative"}
-                            onClick={async () => {
-                                setPassword("");
-                                setPage(1);
-                            }}>
+            <div className={"flex gap-4"}>
+                <IntrinsicButton className="flex-1"
+                                 onClick={async () => {
+                                     setPassword("");
+                                     setPage(1);
+                                 }}>
                     取消
-                </TileButton>
-                <TileButton className="flex-1"
-                            onClick={onLoginClicked}
-                            disabled={password === ""}>
+                </IntrinsicButton>
+                <IntrinsicButton className="flex-1"
+                                 onClick={onLoginClicked}
+                                 disabled={password === ""}>
                     登入
-                </TileButton>
+                </IntrinsicButton>
             </div>
         </TileDialogue>
-        <TileDialogue
-            className={"max-w-lg"}
-            shown={page == 5}
-            header={<div className="text-2xl font-bold">歡迎，{username}！</div>}>
-            <div className="text-gray-500">呢個名未被註冊，如果你想用呢個名註冊帳戶嘅話，請喺下面留低你嘅電郵地址同諗個密碼，否則你可以以訪客身份繼續。</div>
-            <TileTextbox className="mt-2"
-                         placeholder="電郵地址"
+        <TileDialogue in={page == 5} header={`歡迎，${username}！`}>
+            呢個名未被註冊，如果你想用呢個名註冊帳戶嘅話，請喺下面留低你嘅電郵地址同諗個密碼，否則你可以以訪客身份繼續。
+            <TileTextbox placeholder="電郵地址"
                          maxLength={64}
                          type={"email"}
                          value={email}
                          onChange={e => setEmail(e.target.value)}/>
-            <TileTextbox className="mt-2"
-                         placeholder="密碼"
+            <TileTextbox placeholder="密碼"
                          maxLength={64}
                          type={"password"}
                          value={password}
                          onChange={e => setPassword(e.target.value)}/>
-            <TileTextbox className="mt-2"
-                         placeholder="再打一次密碼"
+            <TileTextbox placeholder="再打一次密碼"
                          maxLength={64}
                          type={"password"}
                          value={pass2}
                          onChange={e => setPass2(e.target.value)}/>
             <div className={"flex gap-4 mt-4"}>
-                <TileButton className=""
-                            type={"negative"}
-                            onClick={() => {
-                                setPassword("");
-                                setPass2("");
-                                setPage(1);
-                            }}>
+                <IntrinsicButton onClick={() => {
+                    setPassword("");
+                    setPass2("");
+                    setPage(1);
+                }}>
                     取消
-                </TileButton>
-                <TileButton className="flex-1"
-                            onClick={async _ => {
-                            }}>
+                </IntrinsicButton>
+                <IntrinsicButton className="flex-1"
+                                 onClick={async _ => {
+                                 }}>
                     以訪客身份繼續
-                </TileButton>
-                <TileButton className="flex-1"
-                            onClick={onRegisterClicked}
-                            disabled={password === "" || pass2 === "" || email === ""}>
+                </IntrinsicButton>
+                <IntrinsicButton className="flex-1"
+                                 onClick={onRegisterClicked}
+                                 disabled={password === "" || pass2 === "" || email === ""}>
                     註冊賬戶
-                </TileButton>
+                </IntrinsicButton>
             </div>
         </TileDialogue>
     </div>;
 };
+

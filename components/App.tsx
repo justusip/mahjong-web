@@ -5,6 +5,7 @@ import {useSharedState} from "./Store";
 import IsUsingMobile from "../utils/IsUsingMobile";
 import Resources from "../game/graphics/Resources";
 import PageTest from "./PageTest";
+// import {gm} from "./Gm";
 
 
 export default function App(): React.ReactElement {
@@ -13,11 +14,13 @@ export default function App(): React.ReactElement {
     const [usingMobile, setUsingMobile] = useState(false);
 
     useEffect(() => {
-        setUsingMobile(IsUsingMobile());
+        const usingMobile = IsUsingMobile();
+        setUsingMobile(usingMobile);
         if (usingMobile)
             return;
         // Resources.load().then();
     }, []);
+
 
     if (usingMobile) {
         return <div>請使用電腦瀏覽此網站。</div>;
