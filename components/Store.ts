@@ -10,7 +10,7 @@ interface Globals {
 }
 
 const initialState: Globals = {
-    page: 1,
+    page: 2,
     me: null,
     // me: {
     //     uid: "",
