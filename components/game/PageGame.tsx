@@ -1,7 +1,5 @@
 import React from "react";
-import io from "socket.io-client";
 
-import Game from "../../game/Game";
 import PopupGukStart from "./PopupGukStart";
 import PromptMerge from "./PromptMerge";
 import PromptEat from "./PromptEat";

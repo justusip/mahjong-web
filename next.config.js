@@ -8,13 +8,13 @@ module.exports = {
     },
     async rewrites() {
         return [
-            {
-                source: '/socket.io',
-                destination: 'http://localhost:3001/socket.io'
-            },
+            // {
+            //     source: '/socket.io',
+            //     destination: 'http://localhost:2299/socket.io'
+            // },
             {
                 source: '/api/:path*',
-                destination: 'http://localhost:3001/api/:path*'
+                destination: 'http://localhost:2299/api/:path*'
             }
         ]
     }

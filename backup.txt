@@ -1,0 +1,42 @@
+
+class GameManager {
+
+    s: Socket;
+
+    async request(msg: string, ...args: any[]) {
+        this.s.send(msg + "-req", args);
+        return await Promise.any([
+            new Promise(resolve => this.s.once(msg + "-res", args => resolve(args))),
+            async () => {
+                await ms(1000);
+                throw new Error("TimeoutException");
+            }
+        ]);
+    }
+
+    constructor() {
+        this.setup();
+    }
+
+    setup() {
+        this.s = io("ws://localhost:2299");
+        this.s.on("connect", () => console.log("Connected to server."));
+        this.s.on("disconnect", () => console.log("Disconnected from server."));
+    }
+
+    async joinRoom(code: string): Promise<boolean> {
+        if (!code.match(/\d\d\d\d/g))
+            return false;
+        try {
+            await this.request("join");
+        } catch (ex) {
+            return false;
+        }
+    }
+
+    leaveRoom(code: number) {
+
+    }
+}
+
+// const gm = new GameManager();
