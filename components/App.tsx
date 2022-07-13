@@ -4,6 +4,9 @@ import React, {useEffect, useState} from "react";
 import {io} from "socket.io-client";
 import {Messages} from "../network/Messages";
 import UserInfo from "../network/UserInfo";
+import {Unity, useUnityContext} from "react-unity-webgl";
+import PageTest from "./PageTest";
+import SceneRoom from "./PageTest";
 
 export default function App(): React.ReactElement {
     // const [globals, setGlobals] = useSharedState();
@@ -40,9 +43,12 @@ export default function App(): React.ReactElement {
 
     // if (!me)
     //     return <OverlayLogin onLogin={n => setMe(n)}/>;
-
+    // return <SceneRoom/>;
     return <>
-        <OverlayLogin shown={loginOpened} setShown={setLoginOpened} onLogin={u => {}}/>
-        <PageMain me={me} onLogout={() => {}} requestLogin={() => setLoginOpened(true)}/>
+        <OverlayLogin shown={loginOpened} setShown={setLoginOpened} onLogin={u => {
+        }}/>
+        <PageMain me={me} onLogout={() => {
+        }} requestLogin={() => setLoginOpened(true)}/>
+        <SceneRoom/>
     </>;
 }

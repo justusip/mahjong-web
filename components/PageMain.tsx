@@ -20,6 +20,7 @@ import FragJoinRoom from "./pages/FragJoinRoom";
 import OverlayDialogue from "./pieces/OverlayDialogue";
 import UserInfo from "../network/UserInfo";
 import {GiEarthAsiaOceania, GiMushroomHouse, GiPodium} from "react-icons/gi";
+import SceneRoom from "./PageTest";
 
 export default function PageMain(props: {
     me: UserInfo | null,
@@ -49,8 +50,8 @@ export default function PageMain(props: {
     };
 
     return <div className={classNames(
-        "w-full h-screen ",
-        "bg-[url(/img/bg.jpg)]a bg-gray-900 bg-cover bg-center",
+        "absolute inset-0 z-20 w-full h-screen",
+        // "bg-[url(/img/bg.png)] bg-gray-900 bg-cover bg-center",
         "flex flex-col overflow-hidden"
     )}>
         <div className={"w-full flex-1 flex"}>

@@ -1,21 +1,27 @@
 import {GLTF, GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
 import * as Three from "three";
+import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 
 class Resources {
     static gltfLoader: GLTFLoader = new GLTFLoader();
     static fbxLoader: FBXLoader = new FBXLoader();
     static textureLoader: Three.TextureLoader = new Three.TextureLoader();
     static urls: string[] = [
-        "models/table.glb",
+        // "models/table.glb",
         "models/tile.glb",
         "models/arm.glb",
         "img/symbols.png",
-        "models/interior.glb"
+        "models/interior.glb",
+        "models/panda.glb",
     ];
     static library: { [url: string]: any } = {};
 
     static async load() {
+        const draco = new DRACOLoader();
+        draco.setDecoderConfig({type: 'js'});
+        draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+        this.gltfLoader.setDRACOLoader(draco);
         this.library = {};
         for (let url of this.urls) {
             this.library[url] = await new Promise<any>(r => {

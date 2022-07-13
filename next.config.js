@@ -6,6 +6,7 @@ module.exports = {
         config.resolve.fallback = { fs: false, process: false };
         return config;
     },
+    compress: true,
     async rewrites() {
         return [
             // {
