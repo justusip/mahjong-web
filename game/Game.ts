@@ -156,7 +156,7 @@
 //             this.curTurn = pid;
 //             if (this.selfPid === pid) {
 //                 this.drew = drewTile;
-//                 if (drewTile.type !== 4) {
+//                 if (drewTile.types !== 4) {
 //                     this.scene.pendingDiscard = true;
 //                 }
 //             }
@@ -193,7 +193,7 @@
 //                     this.socket.emit("decideMerge", {"selIdx": selIdx});
 //                     this.ui.promptMerge.setState({shown: false});
 //                     if ((selIdx === -1 && this.selfPid === this.curTurn) ||
-//                         (selections[selIdx].type === MeldType.Soeng || selections[selIdx].type === MeldType.Pung)) {
+//                         (selections[selIdx].types === MeldType.Soeng || selections[selIdx].types === MeldType.Pung)) {
 //                         this.curTurn = this.selfPid;
 //                         this.scene.pendingDiscard = true;
 //                     }
@@ -212,10 +212,10 @@
 //                     causedByTile = this.drew;
 //                     this.drew = null;
 //                 }
-//                 if (meld.type === MeldType.GaaGong) {
-//                     const corner = this.corners[this.selfPid].find(c => c.type === MeldType.Pung && c.tiles[0].equals(meld.tiles[0]));
+//                 if (meld.types === MeldType.GaaGong) {
+//                     const corner = this.corners[this.selfPid].find(c => c.types === MeldType.Pung && c.tiles[0].equals(meld.tiles[0]));
 //                     corner.tiles.push(meld.tiles[0]);
-//                     corner.type = MeldType.GaaGong;
+//                     corner.types = MeldType.GaaGong;
 //                 } else {
 //                     const andTiles = [...meld.tiles];
 //                     andTiles.splice(andTiles.findIndex(t => t.equals(causedByTile)), 1);

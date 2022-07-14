@@ -1,16 +1,62 @@
 import React, {useState} from "react";
-import {IoPersonAdd} from "react-icons/io5";
+import {
+    IoCheckbox,
+    IoCheckmarkCircle, IoCloseCircle,
+    IoCopy,
+    IoPersonAdd,
+    IoPersonRemove,
+    IoPlayCircle,
+    IoStopOutline
+} from "react-icons/io5";
 import ThreeSectionButton from "../generics/ThreeSectionButton";
 import Header from "../pieces/Header";
 import HeaderButton from "../generics/HeaderButton";
 import HeaderSection from "../generics/HeaderSection";
+import Frag from "./Frag";
+import copy from "copy-to-clipboard";
+import RoomStatus from "../../types/RoomStatus";
+import IntrinsicButton from "../generics/IntrinsicButton";
 
 export default function FragRoom(props: {
-    onBackClicked: () => void
+    in: boolean,
+    onBack: () => void,
+    onBotAdd: () => void,
+    onPlayerKick: (playerIdx: number) => void,
+    roomStatus: RoomStatus | null,
+    onSetReady: (ready: boolean) => void,
+    onGameStart: () => void
 }): React.ReactElement {
     const [mode, setMode] = useState(0);
 
-    return <div className={"w-full flex-1 bg-gray-900 flex text-white"}>
+    if (!props.roomStatus) //TODO
+        return <div></div>;
+
+    const canStart = props.roomStatus.players.length !== 4 || !props.roomStatus.players.every(p => p.ready);
+    const iAmOwner = props.roomStatus.iAm === 0;
+    const iAmReady = props.roomStatus.players[props.roomStatus.iAm].ready;
+    console.log(props.roomStatus);
+    return <Frag in={props.in}
+                 header={<>
+                     <div
+                         className={"bg-gray-700 border-x border-b-4 border-gray-800 flex-1 flex place-content-center p-2"}>
+                         <div
+                             className={"flex rounded border border-gray-400 px-8 py-2 place-items-center text-xl gap-4 cursor-pointer hover:bg-white/20 active:bg-white/10 transition-all"}
+                             onClick={() => copy(props.roomStatus.code)}>
+                             <div className={"text-sm flex place-items-center gap-1"}>房間編號</div>
+                             <div>{props.roomStatus.code}</div>
+                             <div className={"text-sm flex place-items-center gap-1"}><IoCopy/>點擊複製</div>
+                         </div>
+                     </div>
+                     {
+                         iAmOwner ?
+                             <HeaderButton onClick={() => props.onGameStart()}
+                                           disabled={canStart}><IoPlayCircle/>開始遊戲</HeaderButton> :
+                             <HeaderButton onClick={() => props.onSetReady(!iAmReady)}>
+                                 {iAmReady ? <><IoCloseCircle/>取消準備</> : <><IoCheckmarkCircle/>準備好</>}
+                             </HeaderButton>
+                     }
+                 </>}
+                 onBack={props.onBack}>
         <div className={"h-full flex-1 flex flex-col"}>
             <Header>
                 <HeaderSection>房間選項</HeaderSection>
@@ -55,7 +101,7 @@ export default function FragRoom(props: {
                                                     name={o.name}
                                                     desc={o.desc}
                                                     active={i === mode}
-                                                    disabled={!(i === 0 || i === 2)}
+                                                    disabled={!(i === 0)}
                                                     onClick={() => setMode(i)}
                                                     className={"flex-1 h-[400px]"}/>)
                         }
@@ -65,24 +111,34 @@ export default function FragRoom(props: {
         </div>
         <div className={"h-full w-[400px] flex flex-col"}>
             <Header><HeaderSection>玩家列表</HeaderSection></Header>
-            <div className={"flex-1 flex flex-col gap-4 p-4"}>
+            <div className={"flex-1 flex flex-col gap-4 p-4 pr-0"}>
                 {
-                    [
-                        null, null, null, null,
-                    ].map((o, i) =>
-                        <div key={i}
-                             className={"border rounded py-4 px-8 flex place-content-center place-items-center gap-4"}>
-                            {
-                                o ||
-                                <><IoPersonAdd/>新增電腦玩家</>
+                    [...new Array(4)].map((_, i) => {
+                        const player = props.roomStatus.players[i];
+                        if (!player) {
+                            return <IntrinsicButton key={i} className={"place-items-center"}
+                                                    onClick={props.onBotAdd}
+                                                    disabled={!iAmOwner}>
+                                <div className={"flex place-items-center gap-2"}><IoPersonAdd/>新增電腦玩家</div>
+                            </IntrinsicButton>;
+                        }
+                        return <div key={i} className={"p-2 flex place-items-center bg-gray-700"}>
+                            <div className={"flex-1 flex flex-col"}>
+                                <div className={"text-xl"}>{props.roomStatus.players[i].name}</div>
+                                <div className={"flex text-xs place-items-center gap-1"}>
+                                    {i === 0 ? "房主" : (player.ready ? <><IoCheckbox/>準備好</> : <><IoStopOutline/>未準備</>)}
+                                </div>
+                            </div>
+                            {i !== 0 &&
+                                <IntrinsicButton onClick={() => props.onPlayerKick(i)}
+                                                 disabled={!iAmOwner}>
+                                    <IoPersonRemove className={"m-2"}/>
+                                </IntrinsicButton>
                             }
-                        </div>)
+                        </div>;
+                    })
                 }
             </div>
-            <div className={"bg-gray-700 p-4 text-center border-t-4 border-white/10"}>
-                <div className={""}>房間編號</div>
-                <div className={"text-3xl"}>2647</div>
-            </div>
         </div>
-    </div>;
+    </Frag>;
 }

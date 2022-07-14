@@ -9,6 +9,16 @@ export default function FriendList(props: {
     shown: boolean,
     setShown: (shown: boolean) => void
 }) {
+    // useEffect(() => {
+    //     (async () => {
+    //         const res = await Post("/api/friends", {});
+    //         if (res.ok) {
+    //             const js = await res.json();
+    //             if (js.ok)
+    //                 setFriends(js);
+    //         }
+    //     })();
+    // }, []);
 
     const [friends, setFriends] = useState<{ username: string, online: boolean }[]>([]);
     const [frdsAddShown, setFrdsAddShown] = useState(false);

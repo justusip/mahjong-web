@@ -40,7 +40,7 @@ export default class Room {
     mixers: Three.AnimationMixer[];
 
     async onStart(canvas: HTMLCanvasElement, selfPid: number) {
-        this.renderer = new Three.WebGLRenderer({canvas: canvas});
+        this.renderer = new Three.WebGLRenderer({canvas: canva});
         this.renderer.physicallyCorrectLights = true;
         this.renderer.toneMapping = Three.ACESFilmicToneMapping;
 

@@ -43,15 +43,6 @@ export default class PageGame extends React.Component<any, any> {
         this.setState({loading: false});
 
         anime({
-            targets: this.room.camera,
-            fov: [80, 60],
-            duration: 2000,
-            easing: "easeInOutCubic",
-            update: () => {
-                this.room.camera.updateProjectionMatrix();
-            }
-        });
-        anime({
             targets: this.room.camera.rotation,
             x: [-60 / 180 * Math.PI, -Math.PI * .35],
             duration: 2000,
