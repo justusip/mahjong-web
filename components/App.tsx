@@ -2,7 +2,7 @@ import OverlayLogin from "./overlays/OverlayLogin";
 import PageMain from "./PageMain";
 import React, {useEffect, useState} from "react";
 import UserInfo from "../network/UserInfo";
-import SceneRoom from "./PageTest";
+import SceneLobby from "./SceneLobby";
 import {Messages} from "../network/Messages";
 import {io} from "socket.io-client";
 import ServerStatus from "./overlays/ServerStatus";
@@ -51,6 +51,6 @@ export default function App(): React.ReactElement {
                   onLogout={() => null}
                   onStart={() => alert("wowo")}
                   requestLogin={() => setLoginOpened(true)}/>
-        {/*<SceneRoom/>*/}
+        <SceneLobby/>
     </div>;
 }

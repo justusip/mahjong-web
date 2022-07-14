@@ -3,18 +3,18 @@ import IntrinsicButton from "../generics/IntrinsicButton";
 import TileTextbox from "../generics/TileTextbox";
 import TileDialogue from "../generics/TileDialogue";
 import Post from "../../utils/PostFetch";
-import {useSharedState} from "../Store";
 import {ms} from "../../utils/Delay";
 import {CSSTransition} from "react-transition-group";
 import classNames from "classnames";
+import Overlay from "../pieces/Overlay";
+import OverlayDialogue from "../pieces/OverlayDialogue";
+import TileButton from "../generics/TileButton";
 
 export default function OverlayLogin(props: {
     shown: boolean,
     setShown: (shown: boolean) => void,
     onLogin: (username: string) => void
 }): React.ReactElement {
-    const [globals, setGlobals] = useSharedState();
-
     const [page, setPage] = useState(0);
 
     const [username, setUsername] = useState("");
@@ -25,6 +25,21 @@ export default function OverlayLogin(props: {
 
     const [errorMsg, setErrorMsg] = useState("");
     const [prevPage, setPrevPage] = useState(0);
+
+    const [overlayShown, setOverlayShown] = useState(false); //TODO remove
+    useEffect(() => {
+        (async () => {
+            if (props.shown) {
+                setOverlayShown(true);
+                await ms(1);
+                setPage(1);
+            } else {
+                setPage(10);
+                await ms(1);
+                setOverlayShown(false);
+            }
+        })();
+    }, [props.shown]);
 
     useEffect(() => {
         (async () => {
@@ -100,14 +115,15 @@ export default function OverlayLogin(props: {
         const js = await res.json();
         if (!js.ok)
             return error(msg.UNEXPECTED_ERROR);
-        setGlobals((prev) => ({...prev, page: 1})); //TODO
     };
 
-    // return <div className="absolute inset-0 z-20 w-full h-screen bg-black/20 flex place-content-center place-items-center">
-    return <CSSTransition classNames="fade" in={props.shown} timeout={100} unmountOnExit>
+    return <CSSTransition classNames="fade"
+                          in={overlayShown}
+                          timeout={100}
+                          unmountOnExit>
         <div className={classNames(
             "absolute z-40 inset-0 bg-black/50",
-            "flex place-content-center place-items-center"
+            "flex place-items-center place-content-center"
         )}
              onClick={() => props.setShown(false)}>
             <TileDialogue in={page === -1}
@@ -123,9 +139,14 @@ export default function OverlayLogin(props: {
                              value={username}
                              placeholder={"電子郵件"}
                              onChange={e => setUsername(e.target.value)}/>
+                <TileTextbox placeholder="密碼"
+                             maxLength={64}
+                             type={"password"}
+                             value={password}
+                             onChange={e => setPassword(e.target.value)}/>
                 <div className={"flex gap-4"}>
-                    <IntrinsicButton className={"flex-1"} onClick={onPlayClicked}>註冊</IntrinsicButton>
-                    <IntrinsicButton className={"flex-1"} onClick={onPlayClicked}
+                    <IntrinsicButton className={"flex-1"} onClick={() => setPage(10)}>註冊</IntrinsicButton>
+                    <IntrinsicButton className={"flex-1"} onClick={() => setPage(10)}
                                      disabled={username === ""}>登入</IntrinsicButton>
                 </div>
             </TileDialogue>
@@ -156,6 +177,11 @@ export default function OverlayLogin(props: {
                     </IntrinsicButton>
                 </div>
             </TileDialogue>
+            <OverlayDialogue shown={page === 10} centered={true} header={"錯誤"}>
+                <div className={"px-2 bg-red-600 text-white"}>錯誤代碼：ERROR_AUTH_STIG</div>
+                發生錯誤。請稍候再嘗試。
+                <TileButton onClick={() => props.setShown(false)}>確定</TileButton>
+            </OverlayDialogue>
         </div>
     </CSSTransition>;
 };

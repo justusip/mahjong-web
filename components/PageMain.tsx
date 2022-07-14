@@ -22,7 +22,7 @@ export default function PageMain(props: {
 }): React.ReactElement {
 
     const [page, setPageRaw] = useState(0);
-    const [roomConfig, setRoomConfig] = useState<RoomStatus | null>(null);
+    const [roomStatus, setRoomStatus] = useState<RoomStatus | null>(null);
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState(null);
@@ -41,7 +41,7 @@ export default function PageMain(props: {
         if (!props.socket)
             return;
         props.socket.on(Messages.ON_ROOM_UPDATE, (args: { status: RoomStatus }) => {
-            setRoomConfig(args.status);
+            setRoomStatus(args.status);
             setPage(args.status ? 2 : 0);
         });
         props.socket.on(Messages.ON_ROOM_START, (args: {}) => {
@@ -55,7 +55,7 @@ export default function PageMain(props: {
     useEffect(() => {
         if (!props.isConnected) {
             setErrorShown(false);
-            setRoomConfig(null);
+            setRoomStatus(null);
             setPage(0);
         }
     }, [props.isConnected]);
@@ -82,7 +82,7 @@ export default function PageMain(props: {
                 props.socket.once(message, (ret) => r(ret));
             })
         ]);
-        await ms(100); //TODO lol
+        await ms(200); //TODO lol
         setIsLoading(false);
         return result;
     };
@@ -137,7 +137,7 @@ export default function PageMain(props: {
     };
 
     const onGameStart = async () => {
-        const {error} = await ask(Messages.ROOM_SET_READY, {});
+        const {error} = await ask(Messages.ROOM_START, {});
         if (error) {
             showError(error, {});
             return;
@@ -157,14 +157,13 @@ export default function PageMain(props: {
         <FragJoinOrCreateRoom in={page === 1}
                               onBack={() => setPage(0)}
                               onCreateRoom={onCreateRoom}
-                              onEnterRoom={() => setPage(3)}
-        />
+                              onEnterRoom={() => setPage(3)}/>
         <FragRoom in={page === 2}
+                  roomStatus={roomStatus}
                   onBack={onLeaveRoom}
                   onBotAdd={onBotAdd}
                   onPlayerKick={onPlayerKick}
                   onSetReady={onSetReady}
-                  roomStatus={roomConfig}
                   onGameStart={onGameStart}/>
         <FragJoinRoom in={page === 3}
                       onBack={() => setPage(1)}

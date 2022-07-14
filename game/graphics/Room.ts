@@ -131,7 +131,6 @@ export default class Room {
                 mat.map.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
                 mat.map.encoding = Three.sRGBEncoding;
             }
-
         }
 
         window.addEventListener("mousemove", this.onMouseMove);

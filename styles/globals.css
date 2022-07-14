@@ -3,11 +3,6 @@
 @tailwind utilities;
 
 @font-face {
-    font-family: source;
-    src: url("/fonts/FOT-KurokaneStd-EB.otf");
-}
-
-@font-face {
     font-family: hannotate;
     src: url("/fonts/jf-openhuninn-1.1.ttf");
 }

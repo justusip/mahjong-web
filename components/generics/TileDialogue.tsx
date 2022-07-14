@@ -9,7 +9,8 @@ export default function TileDialogue(props: React.PropsWithChildren<{
     header?: string | React.ReactElement,
 }>): React.ReactElement {
     return <Magnify in={props.in}>
-        <div className={classNames("bg-gray-700 text-white rounded absolute shadow m-8 w-full max-w-lg")}>
+        <div className={classNames("bg-gray-700 text-white rounded absolute shadow m-8 w-full max-w-lg")}
+             onClick={e => e.stopPropagation()}> {/*TODO*/}
             {
                 props.header && (
                     typeof props.header === "string" ?

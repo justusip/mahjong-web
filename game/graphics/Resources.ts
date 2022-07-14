@@ -8,7 +8,7 @@ class Resources {
     static fbxLoader: FBXLoader = new FBXLoader();
     static textureLoader: Three.TextureLoader = new Three.TextureLoader();
     static urls: string[] = [
-        // "models/table.glb",
+        "models/table.glb",
         "models/tile.glb",
         "models/arm.glb",
         "img/symbols.png",
