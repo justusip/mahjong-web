@@ -1,27 +1,29 @@
 import React, {useEffect, useRef} from "react";
 import * as THREE from "three";
-import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
 import Stats from "three/examples/jsm/libs/stats.module";
-import {SSAOPass} from "three/examples/jsm/postprocessing/SSAOPass";
-import {Material, Mesh, MeshStandardMaterial} from "three";
-import {UnrealBloomPass} from "three/examples/jsm/postprocessing/UnrealBloomPass";
-import GUI from "lil-gui";
-import {ShaderPass} from "three/examples/jsm/postprocessing/ShaderPass";
-import {FXAAShader} from "three/examples/jsm/shaders/FXAAShader";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {RoomEnvironment} from "three/examples/jsm/environments/RoomEnvironment";
 import Resources from "../../game/graphics/Resources";
+import TileForge from "../../game/graphics/TileForge";
+import * as Three from "three";
+import Meld from "../../generics/Meld";
+import Tile from "../../generics/Tile";
 
-export default function SceneGame(): React.ReactElement {
+export default function SceneGame(props: {
+
+}): React.ReactElement {
 
     const canvas = useRef<HTMLCanvasElement>();
-    const clock = new THREE.Clock();
     let renderer: THREE.WebGLRenderer;
-    let mixer: THREE.AnimationMixer;
-    let camera: THREE.PerspectiveCamera;
     let scene: THREE.Scene;
+
+    const clock = new THREE.Clock();
     let stats: Stats;
     let frameId: number;
+
+    let camera: THREE.PerspectiveCamera;
+    let table: THREE.Object3D;
+
+    let mixer: THREE.AnimationMixer;
 
     useEffect(() => {
         init().then();
@@ -37,10 +39,11 @@ export default function SceneGame(): React.ReactElement {
         renderer.outputEncoding = THREE.sRGBEncoding;
 
         stats = Stats();
-        canvas.current.parentElement.appendChild(stats.dom);
+        canvas.current!.parentElement!.appendChild(stats.dom);
 
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xffffff);
+        scene.background = new THREE.Color(0x000000);
+        // scene.background = new THREE.Color(0xffffff);
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
         scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
@@ -53,14 +56,15 @@ export default function SceneGame(): React.ReactElement {
 
         const axesHelper = new THREE.AxesHelper(5);
         scene.add(axesHelper);
-        // const controls = new OrbitControls(camera, canvas.current);
 
-        const table = Resources.getGLTF("models/table.glb").scene.clone();
+        table = Resources.getGLTF("models/table.glb").scene.children[0].clone();
         scene.add(table);
         table.name = "table";
 
         handleResize();
         window.addEventListener("resize", handleResize);
+
+        hardReset(); //todo
 
         frameId = requestAnimationFrame(onRender);
     };
@@ -92,8 +96,32 @@ export default function SceneGame(): React.ReactElement {
         camera.updateProjectionMatrix();
     };
 
-    return <div className={"w-full h-screen bg-black"}>
-        {/*<canvas className={"w-[500px] h-[200px] aspect-square rounded overflow-hidden"} ref={canvas}/>*/}
+    const map = <T, >(n: number, predicate: (n: number) => T): T[] => [...Array(n)].map((_, i) => predicate(i));
+
+    const hardReset = () => {
+        table.remove(...table.children.filter(o => o.type === "Group"));
+        let containers = [...Array(4)].map((_, i) => {
+            const container = new THREE.Group();
+            table.add(container);
+            container.rotation.set(0, Math.PI / 2 * i, 0);
+            return container;
+        });
+
+        const ownPos = map(13, i => new Three.Vector3((-13 / 2 - .25 + i) * 0.026, .03, .3));
+        const drewPos = new Three.Vector3((13 / 2 + .25) * 0.026, .03, .3);
+        const discardPos = map(24, i => {
+            const x = i % 6;
+            const y = Math.floor(i / 6);
+            return new Three.Vector3((-5 / 2 + x) * 0.026, .024, .098 + y * 0.036);
+        });
+        const cornerPos = map(24, i => new Three.Vector3(-.205 + i * 0.026, .024, .245));
+
+        const tile = TileForge.spawnTile();
+        containers[0].add(tile);
+        tile.position.copy(ownPos[0]);
+    };
+
+    return <div className={"w-full h-screen bg-black overflow-hidden"}>
         <canvas ref={canvas}/>
     </div>;
 }

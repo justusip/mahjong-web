@@ -1,4 +1,3 @@
-
 import * as Three from "three";
 import Tile from "../mechanics/Tile";
 import Resources from "./Resources";
@@ -22,31 +21,20 @@ export default class TileForge {
         tileObj.attach(decalObj);
         decalObj.position.set(0, 0, .01);
 
-        this.setTileVirtual(tileObj, false);
         this.setTile(tileObj, null);
         return tileObj;
-    }
-
-    static setTileVirtual(tileObj: Three.Object3D, virtual: boolean) {
-        tileObj.castShadow = !virtual;
-        tileObj.layers.set(virtual ? 1 : 0);
-        //TEMP
-        tileObj.traverse(obj => obj.userData["virtual"] = virtual);
-
-        let decal = tileObj.children[0];
-        decal.layers.set(virtual ? 1 : 0);
     }
 
     static setTile(tileObj: Three.Object3D, tile: Tile) {
         tileObj.userData.tile = tile;
 
         const decal = <Three.Mesh>tileObj.children[0];
-        let x = tile === null ? 4 : tile.num;
-        let y = 4 - (tile === null ? 8 : tile.type);
+        let x = !tile ? 4 : tile.num;
+        let y = 4 - (!tile ? 8 : tile.type);
         let offsetX = 1 / 9;
         let offsetY = 1 / 5;
 
-        let pos = [
+        let uvPos = [
             [
                 new Three.Vector2(x * offsetX, y * offsetY),
                 new Three.Vector2(x * offsetX, (y + 1) * offsetY)
@@ -59,21 +47,11 @@ export default class TileForge {
 
         const geometry = <Three.BufferGeometry>decal.geometry;
 
-        // geometry.faceVertexUvs[0][0][0].set(pos[0][1].x, pos[0][1].y);
-        // geometry.faceVertexUvs[0][0][1].set(pos[0][0].x, pos[0][0].y);
-        // geometry.faceVertexUvs[0][0][2].set(pos[1][1].x, pos[1][1].y);
-        //
-        // geometry.faceVertexUvs[0][1][0].set(pos[0][0].x, pos[0][0].y);
-        // geometry.faceVertexUvs[0][1][1].set(pos[1][0].x, pos[1][0].y);
-        // geometry.faceVertexUvs[0][1][2].set(pos[1][1].x, pos[1][1].y);
-        //
-        // geometry.uvsNeedUpdate = true;
-
         const uvAttributes = geometry.attributes.uv;
-        uvAttributes.setXY(0, pos[0][1].x, pos[0][1].y);
-        uvAttributes.setXY(2, pos[0][0].x, pos[0][0].y);
-        uvAttributes.setXY(1, pos[1][1].x, pos[1][1].y);
-        uvAttributes.setXY(3, pos[1][0].x, pos[1][0].y);
+        uvAttributes.setXY(0, uvPos[0][1].x, uvPos[0][1].y);
+        uvAttributes.setXY(2, uvPos[0][0].x, uvPos[0][0].y);
+        uvAttributes.setXY(1, uvPos[1][1].x, uvPos[1][1].y);
+        uvAttributes.setXY(3, uvPos[1][0].x, uvPos[1][0].y);
         uvAttributes.needsUpdate = true;
     }
 }

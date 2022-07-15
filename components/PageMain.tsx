@@ -44,7 +44,7 @@ export default function PageMain(props: {
             setRoomStatus(args.status);
             setPage(args.status ? 2 : 0);
         });
-        props.socket.on(Messages.ON_ROOM_START, (args: {}) => {
+        props.socket.on(Messages.ON_GAME_START, (args: {}) => {
             props.onStart();
         });
         return () => {

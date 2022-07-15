@@ -6,6 +6,7 @@ import SceneLobby from "./SceneLobby";
 import {Messages} from "../network/Messages";
 import {io} from "socket.io-client";
 import ServerStatus from "./overlays/ServerStatus";
+import FragGame from "./game/FragGame";
 
 
 export default function App(): React.ReactElement {
@@ -41,16 +42,28 @@ export default function App(): React.ReactElement {
 
     const [loginOpened, setLoginOpened] = useState(false);
 
+    const [page, setPage] = useState(0);
+    const onStart = () => {
+
+    };
+
     return <div className={"w-full h-screen overflow-hidden bg-gray-800"}>
         <ServerStatus connected={isConnected}/>
         <OverlayLogin shown={loginOpened} setShown={setLoginOpened} onLogin={u => {
         }}/>
-        <PageMain socket={socket}
-                  isConnected={isConnected}
-                  me={me}
-                  onLogout={() => null}
-                  onStart={() => alert("wowo")}
-                  requestLogin={() => setLoginOpened(true)}/>
-        <SceneLobby/>
+        {
+            [
+                <>
+                    <PageMain socket={socket}
+                              isConnected={isConnected}
+                              me={me}
+                              onLogout={() => null}
+                              onStart={() => alert("wowo")}
+                              requestLogin={() => setLoginOpened(true)}/>
+                    <SceneLobby/>
+                </>,
+                <FragGame socket={socket}/>
+            ][page]
+        }
     </div>;
 }
