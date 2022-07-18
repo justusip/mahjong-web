@@ -7,8 +7,9 @@ import {OutlinePass} from "three/examples/jsm/postprocessing/OutlinePass.js";
 import {FXAAShader} from "three/examples/jsm/shaders/FXAAShader.js";
 
 import Resources from "./Resources";
-import Table from "./Table";
+import GameManager from "./GameManager";
 import Tile from "../mechanics/Tile";
+import Stats from "three/examples/jsm/libs/stats.module";
 
 export default class Room {
     pendingDiscard: boolean = false; //TODO
@@ -19,13 +20,13 @@ export default class Room {
     raycaster: Three.Raycaster;
     camera: Three.PerspectiveCamera;
     selfCam: Three.PerspectiveCamera;
-    // stats: Stats;
+    stats: Stats;
     frameId: number;
 
     outlinePass: OutlinePass;
     fxaaPass: ShaderPass;
 
-    table: Table;
+    table: GameManager;
 
     ready = false;
     onReady: () => void;
@@ -40,40 +41,21 @@ export default class Room {
     mixers: Three.AnimationMixer[];
 
     async onStart(canvas: HTMLCanvasElement, selfPid: number) {
-        this.renderer = new Three.WebGLRenderer({canvas: canva});
-        this.renderer.physicallyCorrectLights = true;
-        this.renderer.toneMapping = Three.ACESFilmicToneMapping;
-
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = Three.PCFSoftShadowMap;
+        this.renderer = new Three.WebGLRenderer({canvas: canvas});
 
         this.scene = new Three.Scene();
         this.raycaster = new Three.Raycaster();
 
-        // this.stats = Stats();
-        // canvas.parentElement.appendChild(this.stats.dom);
+        this.stats = Stats();
+        canvas.parentElement.appendChild(this.stats.dom);
 
         const ambientLight = new Three.AmbientLight(0xffffff, 1);
         this.scene.add(ambientLight);
         ambientLight.layers.enableAll();
 
-        const spotLight1 = new Three.SpotLight(0xffffff, 1);
-        this.scene.add(spotLight1);
-        spotLight1.position.set(0.011, 1.311, -0.784);
-        spotLight1.castShadow = true;
-        spotLight1.layers.enableAll();
-
-        const spotLight2 = new Three.SpotLight(0xffffff, 1);
-        this.scene.add(spotLight2);
-        spotLight2.position.set(0.011, 0.460, 0.528);
-        spotLight2.castShadow = true;
-        spotLight2.layers.enableAll();
-
         this.camera = new Three.PerspectiveCamera(80, 1, 0.001, 1000);
         this.scene.add(this.camera);
         this.camera.layers.set(0);
-        // this.camera.position.set(0, .45, .3);
-        // this.camera.rotation.set(-Math.PI * .35, 0, 0);
         this.camera.position.set(0, .45, .4);
         this.camera.rotation.set(-60 / 180 * Math.PI, 0, 0);
         const controls = new OrbitControls(this.camera, canvas);
@@ -84,8 +66,8 @@ export default class Room {
         this.selfCam.position.set(0, .18, .6);
         this.selfCam.rotation.set(0, 0, 0);
 
-        this.table = new Table(this);
-        this.table.construct(selfPid);
+        this.table = new GameManager(this);
+        this.table.onInit(selfPid);
 
         this.composer = new EffectComposer(this.renderer);
         this.composer.renderTarget1.texture.encoding = Three.sRGBEncoding;
@@ -196,7 +178,7 @@ export default class Room {
         }
     };
 
-    stop() {
+    onEnd() {
         cancelAnimationFrame(this.frameId);
         window.removeEventListener("resize", this.onResize);
         window.removeEventListener("mousemove", this.onMouseMove);
@@ -233,11 +215,11 @@ export default class Room {
     };
 
     checkMouseHover() {
-        if (this.table.drewContainers === undefined || this.table.ownedContainers === undefined)
+        if (this.table.drewCtners === undefined || this.table.hotbarCtners === undefined)
             return;
         this.raycaster.setFromCamera(new Three.Vector2(this.mosX, this.mosY), this.selfCam);
         this.raycaster.layers.enable(1);
-        const tray = [...this.table.drewContainers[this.table.selfPid].children, ...this.table.ownedContainers[this.table.selfPid].children];
+        const tray = [...this.table.drewCtners[this.table.selfPid].children, ...this.table.hotbarCtners[this.table.selfPid].children];
         const intersects = this.raycaster.intersectObjects(tray);
         if (intersects.length === 0) {
             document.body.style["cursor"] = "default";
@@ -259,7 +241,7 @@ export default class Room {
         //     return;
         this.raycaster.setFromCamera(new Three.Vector2(this.mosX, this.mosY), this.selfCam);
         this.raycaster.layers.set(1);
-        const tray = [...this.table.drewContainers[this.table.selfPid].children, ...this.table.ownedContainers[this.table.selfPid].children];
+        const tray = [...this.table.drewCtners[this.table.selfPid].children, ...this.table.hotbarCtners[this.table.selfPid].children];
         const intersects = this.raycaster.intersectObjects(tray);
         if (intersects.length === 0)
             return;

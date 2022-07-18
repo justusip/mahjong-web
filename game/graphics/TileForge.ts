@@ -21,16 +21,33 @@ export default class TileForge {
         tileObj.attach(decalObj);
         decalObj.position.set(0, 0, .01);
 
+        this.setTileVirtual(tileObj, false);
         this.setTile(tileObj, null);
         return tileObj;
     }
+
+    static setTileVirtual(tileObj: Three.Object3D, virtual: boolean) {
+        tileObj.castShadow = true;
+        tileObj.layers.set(0);
+        tileObj.traverse(obj => obj.userData["virtual"] = true);
+        tileObj.children[0].layers.set(0);
+        return;
+        tileObj.castShadow = !virtual;
+        tileObj.layers.set(virtual ? 1 : 0);
+        //TEMP
+        tileObj.traverse(obj => obj.userData["virtual"] = virtual);
+
+        let decal = tileObj.children[0];
+        decal.layers.set(virtual ? 1 : 0);
+    }
+
 
     static setTile(tileObj: Three.Object3D, tile: Tile) {
         tileObj.userData.tile = tile;
 
         const decal = <Three.Mesh>tileObj.children[0];
-        let x = !tile ? 4 : tile.num;
-        let y = 4 - (!tile ? 8 : tile.type);
+        let x = !tile ? 4 : tile.rank;
+        let y = 4 - (!tile ? 8 : tile.suit);
         let offsetX = 1 / 9;
         let offsetY = 1 / 5;
 

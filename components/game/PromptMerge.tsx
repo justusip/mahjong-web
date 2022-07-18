@@ -48,24 +48,24 @@ export default class PromptMerge extends React.Component<{}, StatePromptMerge> {
                                 s.tiles.map((t: Tile, i: number) =>
                                     <img key={i}
                                          className="prompt-button-icon"
-                                         src={`img/tiles/${t.type}_${t.num}.png`}/>
+                                         src={`img/tiles/${t.suit}_${t.rank}.png`}/>
                                 )
                             }
                         </div>
                         <div className="prompt-button-desc">
                             {
-                                (s.type === MeldType.GaaGong || s.type === MeldType.MingGong) ?
+                                (s.meldType === MeldType.GaaGong || s.meldType === MeldType.MingGong) ?
                                     (
-                                        s.type === MeldType.MingGong ?
+                                        s.meldType === MeldType.MingGong ?
                                             `大明槓` :
                                             `加槓`
                                     ) : (
-                                        s.type === MeldType.AmGong ?
+                                        s.meldType === MeldType.AmGong ?
                                             `暗槓` :
                                             (
-                                                s.type === MeldType.Pung ?
+                                                s.meldType === MeldType.Pung ?
                                                     `碰` :
-                                                    `連埋${s.tiles.filter(t => !t.equals(this.state.causeTile)).join("同")}上`
+                                                    `連埋${s.tiles.filter(t => !t.equalsTo(this.state.causeTile)).join("同")}上`
                                             )
                                     )
                             }
@@ -77,7 +77,6 @@ export default class PromptMerge extends React.Component<{}, StatePromptMerge> {
                     onMouseDown={_ => this.setState({activeBtn: -1})}
                     onMouseLeave={_ => this.setState({activeBtn: null})}
                     onClick={_ => this.state.onDecideMerge(-1)}>
-                <img src="/img/icons/pass.svg"/>
                 <div>唔理</div>
             </button>
         </div>;

@@ -1,17 +1,43 @@
+import React, {useEffect, useState} from "react";
 import {Socket} from "socket.io-client";
-import React, {useEffect, useRef, useState} from "react";
+import ThreeScene from "./ThreeScene";
+import {Renderer, Scene} from "three";
 import {Messages} from "../../network/Messages";
-import Tile from "../../generics/Tile";
-import Meld from "../../generics/Meld";
-import SceneGame from "./SceneGame";
+import Tile from "../../game/mechanics/Tile";
+import Meld from "../../game/mechanics/Meld";
+import GameManager from "../../game/graphics/GameManager";
+import TempPrompt from "./TempPrompt";
+import {ms} from "../../utils/Delay";
 
-export default function FragGame(props: {
+export default function SceneGame(props: {
     socket: Socket
-}) {
+}): React.ReactElement {
 
-    const scene = useRef<typeof SceneGame>();
+    let gm: GameManager;
+
+    const onStart = async (scene: Scene, renderer: Renderer) => {
+        gm = new GameManager(scene);
+        gm.onInit();
+
+        props.socket.emit(Messages.ROOM_CREATE, {});
+        await ms(100);
+        props.socket.emit(Messages.ROOM_START, {});
+        await ms(100);
+    };
+
+    const [prompt, setPrompt] = useState(null);
 
     useEffect(() => {
+        if (!props.socket)
+            return;
+        props.socket.on(Messages.ON_GAME_START, (
+            pid: number,
+            names: string[]
+        ) => {
+            gm.onRoomStart(pid);
+            props.socket.emit(Messages.DECIDE_READY);
+        });
+
         props.socket.on(Messages.ON_GUK_START, (
             _players: [
                 hotbar: (number | null)[],
@@ -26,15 +52,15 @@ export default function FragGame(props: {
                 melds: melds.map(o => Meld.deserialize(o)),
                 flowers: flowers.map(o => Tile.deserialize(o))
             }));
-            scene.current.reset();
+            gm.onGukStart(players, fung, guk);
         });
 
         props.socket.on(Messages.DECIDE_PROMPT, (
-            pid: number,
             _availMelds: { a: number, b: number[] }[],
             availSik: boolean
         ) => {
             const availMelds = _availMelds.map(o => Meld.deserialize(o));
+            setPrompt({availMelds, availSik});
         });
 
         props.socket.on(Messages.ON_SOMEONE_DREW, (
@@ -43,7 +69,7 @@ export default function FragGame(props: {
             tilesLeft: number
         ) => {
             const drewTile = !_drewTile ? null : Tile.deserialize(_drewTile);
-
+            gm.onSomeoneDrew(pid, drewTile);
         });
 
         props.socket.on(Messages.ON_SOMEONE_DISCARD, (
@@ -51,6 +77,7 @@ export default function FragGame(props: {
             _discarded: number
         ) => {
             const discarded = Tile.deserialize(_discarded);
+            gm.onSomeoneDiscard(pid, discarded);
         });
 
         props.socket.on(Messages.ON_SOMEONE_MERGE, (
@@ -58,6 +85,7 @@ export default function FragGame(props: {
             _meld: { a: number, b: number[] }
         ) => {
             const meld = Meld.deserialize(_meld);
+            gm.onSomeoneMerge(pid, meld);
         });
 
         props.socket.on(Messages.ON_GUK_END, (
@@ -81,7 +109,8 @@ export default function FragGame(props: {
                 const hotbar = _hotbar.map(o => Tile.deserialize(o));
                 const melds = _melds.map(o => Meld.deserialize(o));
                 const flowers = _flowers.map(o => Tile.deserialize(o));
-
+                const allTiles = [...melds.flatMap(m => m.tiles), ...flowers, ...hotbar];
+                gm.onSomeoneSik(pid, allTiles, extraTile);
             }
         });
         return () => {
@@ -93,9 +122,11 @@ export default function FragGame(props: {
         };
     }, [props.socket]);
 
-    // return <div className={"w-screen h-screen bg-black flex place-items-center place-content-center p-[16px]"}>
-    //     <div className={"w-full max-w-[calc(100vh-32px)] bg-neutral-800 rounded overflow-hidden aspect-square m-auto"}></div>
-    // </div>;
-
-    return <SceneGame ref={scene}/>;
-}
+    return <div className={"w-screen h-screen overflow-hidden"}>
+        <TempPrompt prompt={prompt} onDecide={(decision: number) => {
+            setPrompt(null);
+            props.socket.emit(Messages.DECIDE_PROMPT, decision);
+        }}/>
+        <ThreeScene onStart={onStart}/>
+    </div>;
+};

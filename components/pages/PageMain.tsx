@@ -1,16 +1,15 @@
 import React, {useEffect, useState} from "react";
-import FragRoom from "./pages/FragRoom";
-import {ms} from "../utils/Delay";
-import FragHome from "./pages/FragHome";
-import FragJoinOrCreateRoom from "./pages/FragJoinOrCreateRoom";
-import FragJoinRoom from "./pages/FragJoinRoom";
-import OverlayDialogue from "./pieces/OverlayDialogue";
-import UserInfo from "../network/UserInfo";
+import OverlayDialogue from "../pieces/OverlayDialogue";
+import TileButton from "../generics/TileButton";
+import FragHome from "../frags/FragHome";
+import FragJoinOrCreateRoom from "../frags/FragJoinOrCreateRoom";
+import FragRoom from "../frags/FragRoom";
+import FragJoinRoom from "../frags/FragJoinRoom";
+import RoomStatus from "../../types/RoomStatus";
 import {Socket} from "socket.io-client";
-import {Messages} from "../network/Messages";
-import RoomStatus from "../types/RoomStatus";
-import {AiOutlineLoading} from "react-icons/ai";
-import TileButton from "./generics/TileButton";
+import UserInfo from "../../network/UserInfo";
+import {Messages} from "../../network/Messages";
+import {ms} from "../../utils/Delay";
 
 export default function PageMain(props: {
     socket: Socket,
@@ -40,18 +39,27 @@ export default function PageMain(props: {
     useEffect(() => {
         if (!props.socket)
             return;
+        (async () => {
+            await onCreateRoom();
+            await onGameStart();
+        })();
+    }, [props.socket]);
+
+    useEffect(() => {
+        if (!props.socket)
+            return;
         props.socket.on(Messages.ON_ROOM_UPDATE, (args: { status: RoomStatus }) => {
             setRoomStatus(args.status);
             setPage(args.status ? 2 : 0);
         });
-        props.socket.on(Messages.ON_GAME_START, (args: {}) => {
+        props.socket.on(Messages.ON_ROOM_START, (args: {}) => {
             props.onStart();
         });
         return () => {
             props.socket.off(Messages.ON_ROOM_UPDATE);
             props.socket.off(Messages.ON_ROOM_START);
         };
-    }, [page, props.socket]);
+    }, [props.socket]);
     useEffect(() => {
         if (!props.isConnected) {
             setErrorShown(false);
@@ -151,7 +159,9 @@ export default function PageMain(props: {
             <TileButton onClick={() => setErrorShown(false)}>確定</TileButton>
         </OverlayDialogue>
         <OverlayDialogue shown={isLoading} centered={true}>
-            <div className={"flex gap-2 place-items-center"}><AiOutlineLoading className={"animate-spin"}/>載入中</div>
+            <div className={"flex gap-2 place-items-center"}>
+                <img src={"/img/loading.svg"} width={16} alt={"."}/>載入中
+            </div>
         </OverlayDialogue>
         <FragHome in={page === 0} setPage={setPage} requestLogin={props.requestLogin}/>
         <FragJoinOrCreateRoom in={page === 1}

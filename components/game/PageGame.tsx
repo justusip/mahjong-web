@@ -60,12 +60,12 @@ export default class PageGame extends React.Component<any, any> {
 
     componentWillUnmount() {
         Game.ins.disconnect();
-        this.room.stop();
+        this.room.onEnd();
     }
 
     render(): React.ReactNode {
-        return [
-            <canvas ref={r => this.canvas = r} id="canvas"/>,
+        return <div className={"w-screen h-screen"}>
+            <canvas ref={r => this.canvas = r} id="canvas"/>
             <div id="ui">
                 <HintPlayerNames ref={r => this.hintPlayerNames = r}/>
                 <PopupGukStart ref={r => this.popupGukStart = r}/>
@@ -73,10 +73,10 @@ export default class PageGame extends React.Component<any, any> {
                 <PromptEat ref={r => this.promptEat = r}/>
                 <PopupScores ref={r => this.screenGukEnd = r}/>
                 <PopupRank ref={r => this.screenGameEnd = r}/>
-            </div>,
+            </div>
             <CSSTransition in={!this.state.loading} timeout={1000} classNames="void">
                 <div className="void"/>
             </CSSTransition>
-        ];
+        </div>;
     }
 }

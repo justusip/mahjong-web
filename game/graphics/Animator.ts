@@ -1,29 +1,28 @@
-
 import * as Three from "three";
 import TileForge from "./TileForge";
 import Resources from "./Resources";
 import anime from "animejs";
 import Room from "./Room";
-import Table from "./Table";
+import GameManager from "./GameManager";
+import {Object3D} from "three";
 
 export default class Animator {
 
-    room: Room;
-    table: Table;
+    gm: GameManager;
+
     discardOccupied: boolean[][];
     cornerOccupied: boolean[][];
     lastAnimId: number[][];
     handPos = new Three.Vector3(.1, .06, .7);
 
-    constructor(room: Room, table: Table) {
-        this.room = room;
-        this.table = table;
+    constructor(gm: GameManager) {
+        this.gm = gm;
     }
 
     onReset() {
         this.lastAnimId = [[], [], [], []];
-        this.discardOccupied = [...Array(4)].map(() => Array(this.table.discardPos.length).fill(false));
-        this.cornerOccupied = [...Array(4)].map(() => Array(this.table.cornerPos.length).fill(false));
+        this.discardOccupied = [...Array(4)].map(() => Array(this.gm.discardPos.length).fill(false));
+        this.cornerOccupied = [...Array(4)].map(() => Array(this.gm.cornerPos.length).fill(false));
     }
 
     freeDiscardPos(pid: number) {
@@ -33,7 +32,7 @@ export default class Animator {
     }
 
     animteDrew(drewObj: Three.Object3D) {
-        drewObj.position.copy(this.table.drewPos);
+        drewObj.position.copy(this.gm.drewPos);
         anime({
             targets: drewObj.position,
             y: [drewObj.position.y + .02, drewObj.position.y],
@@ -50,40 +49,40 @@ export default class Animator {
 
     animateDiscard(pid: number, tileObj: Three.Object3D) {
         tileObj.parent.remove(tileObj);
-        this.table.discardContainers[pid].add(tileObj);
+        this.gm.discardCtners[pid].add(tileObj);
         TileForge.setTileVirtual(tileObj, false);
 
         let posIdx = this.discardOccupied[pid].findIndex(o => !o);
         this.discardOccupied[pid][posIdx] = true;
-        const discardPos = this.table.discardPos[posIdx];
+        const discardPos = this.gm.discardPos[posIdx];
 
         tileObj.rotation.set(-Math.PI * .5, 0, (Math.random() - .5) * 4 * Math.PI / 180);
 
-        const clip = this.room.mixers[pid].clipAction(Resources.cloneGLTF("models/arm.glb").animations[0]);
+        const clip = this.gm.handMixers[pid].clipAction(Resources.cloneGLTF("models/arm.glb").animations[0]);
         clip.loop = Three.LoopOnce;
         clip.clampWhenFinished = true;
-        this.room.mixers[pid].setTime(0);
+        this.gm.handMixers[pid].setTime(0);
         clip.reset().play();
 
         tileObj.position.copy(this.handPos);
         anime({targets: tileObj.position, x: discardPos.x, z: discardPos.z, duration: 500, easing: "easeInOutCubic"});
         anime({targets: tileObj.position, y: discardPos.y, delay: 250, duration: 250, easing: "easeInOutCubic"});
 
-        anime.remove(this.room.hands[pid]);
-        this.room.hands[pid].position.copy(this.handPos);
-        anime.timeline({targets: this.room.hands[pid].position})
+        anime.remove(this.gm.handObjs[pid]);
+        this.gm.handObjs[pid].position.copy(this.handPos);
+        anime.timeline({targets: this.gm.handObjs[pid].position})
             .add({x: discardPos.x, z: discardPos.z, duration: 500, easing: "easeInOutCubic"})
             .add({x: this.handPos.x, z: this.handPos.z, duration: 500, easing: "easeInOutCubic"});
-        anime.timeline({targets: this.room.hands[pid].position})
+        anime.timeline({targets: this.gm.handObjs[pid].position})
             .add({y: discardPos.y, delay: 250, duration: 250, easing: "easeInOutCubic"})
             .add({y: this.handPos.y, duration: 250, easing: "easeInOutCubic"});
     }
 
     animateMerge(pid: number, tileObjs: Three.Object3D[]) {
-        const clip = this.room.mixers[pid].clipAction(Resources.cloneGLTF("models/arm.glb").animations[1]);
+        const clip = this.gm.handMixers[pid].clipAction(Resources.cloneGLTF("models/arm.glb").animations[1]);
         clip.loop = Three.LoopOnce;
         clip.clampWhenFinished = true;
-        this.room.mixers[pid].setTime(0);
+        this.gm.handMixers[pid].setTime(0);
         clip.reset().play();
 
         let mergePos = new Three.Vector3(0, 0, 0);
@@ -91,23 +90,23 @@ export default class Animator {
             let posIdx = this.cornerOccupied[pid].findIndex(o => !o);
             this.cornerOccupied[pid][posIdx] = true;
 
-            const pos = this.table.cornerPos[posIdx];
+            const pos = this.gm.cornerPos[posIdx];
             tileObj.position.copy(pos.clone().add(new Three.Vector3(0.05, 0, 0)));
             anime({targets: tileObj.position, x: pos.x, z: pos.z, duration: 100, easing: "linear"});
 
             if (Math.floor(tileObjs.length / 2) === i)
-                mergePos = this.table.cornerPos[posIdx];
+                mergePos = this.gm.cornerPos[posIdx];
 
             tileObj.rotation.set(-Math.PI * .5, tileObj.rotation.y, 0);
         });
 
-        anime.remove(this.room.hands[pid].position);
-        this.room.hands[pid].position.copy(mergePos.clone().add(new Three.Vector3(0.05, 0, 0)));
-        anime.timeline({targets: this.room.hands[pid].position})
+        anime.remove(this.gm.handObjs[pid].position);
+        this.gm.handObjs[pid].position.copy(mergePos.clone().add(new Three.Vector3(0.05, 0, 0)));
+        anime.timeline({targets: this.gm.handObjs[pid].position})
             .add({x: mergePos.x, z: mergePos.z, duration: 100, easing: "linear"})
             .add({x: this.handPos.x, z: this.handPos.z, duration: 500, easing: "easeInOutCubic"});
         anime({
-            targets: this.room.hands[pid].position,
+            targets: this.gm.handObjs[pid].position,
             y: this.handPos.y,
             delay: 100,
             duration: 500,
@@ -118,7 +117,7 @@ export default class Animator {
     teleportToCorner(pid: number, tileObj: Three.Object3D) {
         let posIdx = this.cornerOccupied[pid].findIndex(o => !o);
         this.cornerOccupied[pid][posIdx] = true;
-        tileObj.position.copy(this.table.cornerPos[posIdx]);
+        tileObj.position.copy(this.gm.cornerPos[posIdx]);
         tileObj.rotation.set(-Math.PI * .5, 0, 0);
     }
 
@@ -148,7 +147,7 @@ export default class Animator {
             anime({
                 targets: tileObj.position,
                 y: .024,
-                z: this.table.ownPos[0].z - 0.01,
+                z: this.gm.ownPos[0].z - 0.01,
                 delay: i * 30,
                 duration: 100,
                 easing: "easeInCubic"

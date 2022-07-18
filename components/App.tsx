@@ -1,16 +1,23 @@
 import OverlayLogin from "./overlays/OverlayLogin";
-import PageMain from "./PageMain";
 import React, {useEffect, useState} from "react";
 import UserInfo from "../network/UserInfo";
-import SceneLobby from "./SceneLobby";
-import {Messages} from "../network/Messages";
 import {io} from "socket.io-client";
 import ServerStatus from "./overlays/ServerStatus";
-import FragGame from "./game/FragGame";
-
+import PageMain from "./pages/PageMain";
+import PageLoading from "./pages/PageLoading";
+import Resources from "../game/graphics/Resources";
+import PageGame from "./game/PageGame";
+import SceneGame from "./gameNew/SceneGame";
 
 export default function App(): React.ReactElement {
     const [me, setMe] = useState<UserInfo | null>(null);
+
+    useEffect(() => {
+        (async () => {
+            await Resources.load();
+            setPage(2);
+        })();
+    });
 
     const serverURL = "ws://localhost:2299";
     const [socket, setSocket] = useState(null);
@@ -23,12 +30,12 @@ export default function App(): React.ReactElement {
         socket.on("connect", () => {
             console.log(`Connected to ${serverURL}.`);
             setIsConnected(true);
-            socket.emit(Messages.ROOM_JOIN, {roomCode: "3948"});
-            socket.once(Messages.ROOM_JOIN, ({error}) => {
-                if (error) {
-                    console.log(error);
-                }
-            });
+            // socket.emit(Messages.ROOM_JOIN, {roomCode: "3948"});
+            // socket.once(Messages.ROOM_JOIN, ({error}) => {
+            //     if (error) {
+            //         console.log(error);
+            //     }
+            // });
         });
         socket.on("disconnect", () => {
             console.log(`Disconnected from ${serverURL}.`);
@@ -44,7 +51,7 @@ export default function App(): React.ReactElement {
 
     const [page, setPage] = useState(0);
     const onStart = () => {
-
+        setPage(2);
     };
 
     return <div className={"w-full h-screen overflow-hidden bg-gray-800"}>
@@ -53,16 +60,17 @@ export default function App(): React.ReactElement {
         }}/>
         {
             [
+                <PageLoading/>,
                 <>
                     <PageMain socket={socket}
                               isConnected={isConnected}
                               me={me}
                               onLogout={() => null}
-                              onStart={() => alert("wowo")}
+                              onStart={onStart}
                               requestLogin={() => setLoginOpened(true)}/>
-                    <SceneLobby/>
+                    {/*<SceneLobby/>*/}
                 </>,
-                <FragGame socket={socket}/>
+                <SceneGame socket={socket}/>
             ][page]
         }
     </div>;

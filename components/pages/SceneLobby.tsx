@@ -1,7 +1,6 @@
 import React, {useEffect, useRef} from "react";
 import * as THREE from "three";
 import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
-import Resources from "../game/graphics/Resources";
 import Stats from "three/examples/jsm/libs/stats.module";
 import {SSAOPass} from "three/examples/jsm/postprocessing/SSAOPass";
 import {Material, Mesh, MeshStandardMaterial} from "three";
@@ -11,6 +10,7 @@ import {ShaderPass} from "three/examples/jsm/postprocessing/ShaderPass";
 import {FXAAShader} from "three/examples/jsm/shaders/FXAAShader";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {RoomEnvironment} from "three/examples/jsm/environments/RoomEnvironment";
+import Resources from "../../game/graphics/Resources";
 
 export default function SceneLobby(): React.ReactElement {
 
@@ -31,8 +31,6 @@ export default function SceneLobby(): React.ReactElement {
     }, []);
 
     const init = async () => {
-        await Resources.load();
-
         renderer = new THREE.WebGL1Renderer({canvas: canvas.current});
         // renderer.physicallyCorrectLights = true;
         renderer.outputEncoding = THREE.sRGBEncoding;

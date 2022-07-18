@@ -2,7 +2,7 @@
 //
 // import Room from "./graphics/Room";
 // import Tile from "./mechanics/Tile";
-// import PageGame from "../components/gameOld/PageGame";
+// import PageGame from "../components/game/PageGame";
 // import PageRoom from "../components/room/PageRoom";
 // import OverlayLogin from "../components/OverlayLogin";
 // import Meld, {MeldType} from "./mechanics/Meld";
