@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import Resources from "./Resources";
-import Tile from "../mechanics/Tile";
 import TileForge from "./TileForge";
 import Animator from "./Animator";
-import Meld, {MeldType} from "../mechanics/Meld";
 import {ms} from "../../utils/Delay";
+import Tile from "../../game/Tile";
+import Meld, {MeldType} from "../../game/Meld";
 
 const map = <T, >(n: number, predicate: (n: number) => T): T[] => [...Array(n)].map((_, i) => predicate(i));
 export default class GameManager {
@@ -26,14 +26,14 @@ export default class GameManager {
     discardCtners: THREE.Group[];
     cornerCtners: THREE.Group[];
 
-    ownPos = map(13, i => new THREE.Vector3((-13 / 2 - .25 + i) * 0.026, .03, .3));
-    drewPos = new THREE.Vector3((13 / 2 + .25) * 0.026, .03, .3);
+    ownPos = map(13, i => new THREE.Vector3((-13 / 2 - .25 + i) * 0.026, .018, .3));
+    drewPos = new THREE.Vector3((13 / 2 + .25) * 0.026, .018, .3);
     discardPos = map(24, i => {
         const x = i % 6;
         const y = Math.floor(i / 6);
-        return new THREE.Vector3((-5 / 2 + x) * 0.026, .024, .098 + y * 0.036);
+        return new THREE.Vector3((-5 / 2 + x) * 0.026, .01, .098 + y * 0.036);
     });
-    cornerPos = map(24, i => new THREE.Vector3(-.205 + i * 0.026, .024, .245));
+    cornerPos = map(24, i => new THREE.Vector3(-.205 + i * 0.026, .01, .245));
     namePos = [
         new THREE.Vector3(-.14, .024, .2),
         new THREE.Vector3(.2, .024, .14),
@@ -41,9 +41,12 @@ export default class GameManager {
         new THREE.Vector3(-.2, .024, -.14),
     ];
 
-    constructor(scene: THREE.Scene) {
+    updateInventory: (hotbar: Tile[], drew: Tile | null) => void;
+
+    constructor(scene: THREE.Scene, updateInventory: (hotbar: Tile[], drew: Tile | null) => void) {
         this.scene = scene;
         this.animator = new Animator(this);
+        this.updateInventory = updateInventory;
     }
 
     onInit() {
@@ -108,6 +111,7 @@ export default class GameManager {
                 this.animator.teleportToCorner(pid, tileObj);
             });
         });
+        this.onUpdateInv();
     }
 
     async onSomeoneDrew(pid: number, tile: Tile) {
@@ -125,16 +129,19 @@ export default class GameManager {
             TileForge.setTileVirtual(tileObj, false);
             this.animator.animateMerge(pid, [tileObj]);
         }
+        this.onUpdateInv();
     }
 
     async onSomeoneDiscard(pid: number, tile: Tile) {
-        let tileObj = null;
+        let tileObj;
         const tray = [
+            ...this.hotbarCtners[pid].children,
             this.drewCtners[pid].children.length > 0 ? this.drewCtners[pid].children[0] : null,
-            ...this.hotbarCtners[pid].children
         ];
         if (this.selfPid === pid) {
-            tileObj = tray.find(tileObj => tile.equalsTo(tileObj.userData.tid));
+            console.log(tile);
+            console.log(tray.map(t => !t ? null : t.userData.tile));
+            tileObj = tray.find(tileObj => tile.equalsTo(tileObj.userData.tile));
             TileForge.setTileVirtual(tileObj, false);
         } else {
             tileObj = tray.filter(o => o !== null)[Math.floor(Math.random() * tray.filter(o => o !== null).length)];
@@ -145,13 +152,14 @@ export default class GameManager {
         this.animator.animateDiscard(pid, tileObj);
         await ms(1000);
         this.sort(pid);
+        this.onUpdateInv();
     }
 
     async onSomeoneMerge(pid: number, meld: Meld) {
         const tileObjs: THREE.Object3D[] = [meld.isSeize() ? this.lastDiscard : this.drewCtners[pid].children[0]];
 
         const andTiles = [...meld.tiles];
-        const causeTile = andTiles.splice(andTiles.findIndex(t => t.equalsTo(tileObjs[0].userData.tile)), 1)[0];
+        const extraTile = andTiles.splice(andTiles.findIndex(t => t.equalsTo(tileObjs[0].userData.tile)), 1)[0];
 
         if (meld.meldType !== MeldType.GaaGong) {
             if (this.selfPid === pid) {
@@ -173,7 +181,7 @@ export default class GameManager {
             this.animator.freeDiscardPos(this.lastDiscardPid);
         } else {
             if (this.selfPid !== pid)
-                TileForge.setTile(tileObjs[0], causeTile);
+                TileForge.setTile(tileObjs[0], extraTile);
         }
         tileObjs.sort((a, b) => a.userData.tile.compareTo(b.userData.tile));
 
@@ -188,6 +196,7 @@ export default class GameManager {
 
         this.animator.animateMerge(pid, tileObjs);
         this.sort(pid);
+        this.onUpdateInv();
     }
 
     onSomeoneSik(pid: number, tiles: Tile[], extraTile: Tile) {
@@ -225,5 +234,19 @@ export default class GameManager {
             newPos[j] = this.ownPos[this.ownPos.length - owned.length + j];
         }
         this.animator.animateSort(owned, newPos, drewTileObj);
+    }
+
+    onUpdateInv() {
+        let hotbar: Tile[] = [];
+        this.hotbarCtners[this.selfPid].traverse(child => {
+            if (child.userData.tile)
+                hotbar.push(child.userData.tile as Tile);
+        });
+        let drew: Tile | null = null;
+        this.drewCtners[this.selfPid].traverse(child => {
+            if (child.userData.tile)
+                drew = child.userData.tile as Tile;
+        });
+        this.updateInventory(hotbar, drew);
     }
 }

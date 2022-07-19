@@ -34,7 +34,7 @@ export default class PopupGukStart extends React.Component<{}, StateScreenEndGuk
                 </div>
             </div>
             {
-                <CSSTransition in={this.state.curState === 2} timeout={0} classNames={"game-general-info"}>
+                <CSSTransition in={this.state.curState === 2} timeout={0} classNames={"gameOld-general-info"}>
                     <div className="game-general-info">
                         <div className="game-general-guk">{"東南西北"[this.state.fung]}風{"東南西北"[this.state.guk]}局</div>
                         <div className="game-general-remaining">{`x${this.state.remaining}`}</div>

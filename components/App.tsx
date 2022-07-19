@@ -5,9 +5,8 @@ import {io} from "socket.io-client";
 import ServerStatus from "./overlays/ServerStatus";
 import PageMain from "./pages/PageMain";
 import PageLoading from "./pages/PageLoading";
-import Resources from "../game/graphics/Resources";
-import PageGame from "./game/PageGame";
-import SceneGame from "./gameNew/SceneGame";
+import SceneGame from "./game/SceneGame";
+import Resources from "./game/Resources";
 
 export default function App(): React.ReactElement {
     const [me, setMe] = useState<UserInfo | null>(null);
@@ -30,12 +29,6 @@ export default function App(): React.ReactElement {
         socket.on("connect", () => {
             console.log(`Connected to ${serverURL}.`);
             setIsConnected(true);
-            // socket.emit(Messages.ROOM_JOIN, {roomCode: "3948"});
-            // socket.once(Messages.ROOM_JOIN, ({error}) => {
-            //     if (error) {
-            //         console.log(error);
-            //     }
-            // });
         });
         socket.on("disconnect", () => {
             console.log(`Disconnected from ${serverURL}.`);
@@ -54,7 +47,7 @@ export default function App(): React.ReactElement {
         setPage(2);
     };
 
-    return <div className={"w-full h-screen overflow-hidden bg-gray-800"}>
+    return <div className={"w-screen h-screen overflow-hidden bg-gray-800"}>
         <ServerStatus connected={isConnected}/>
         <OverlayLogin shown={loginOpened} setShown={setLoginOpened} onLogin={u => {
         }}/>
@@ -71,6 +64,7 @@ export default function App(): React.ReactElement {
                     {/*<SceneLobby/>*/}
                 </>,
                 <SceneGame socket={socket}/>
+                // <TestTest/>
             ][page]
         }
     </div>;

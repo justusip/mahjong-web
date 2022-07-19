@@ -34,7 +34,6 @@ export default function FragRoom(props: {
     const canStart = props.roomStatus.players.length !== 4 || !props.roomStatus.players.every(p => p.ready);
     const iAmOwner = props.roomStatus.iAm === 0;
     const iAmReady = props.roomStatus.players[props.roomStatus.iAm].ready;
-    console.log(props.roomStatus);
     return <Frag in={props.in}
                  header={<>
                      <div

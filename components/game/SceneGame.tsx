@@ -1,13 +1,16 @@
 import React, {useEffect, useState} from "react";
 import {Socket} from "socket.io-client";
 import ThreeScene from "./ThreeScene";
-import {Renderer, Scene} from "three";
 import {Messages} from "../../network/Messages";
-import Tile from "../../game/mechanics/Tile";
-import Meld from "../../game/mechanics/Meld";
-import GameManager from "../../game/graphics/GameManager";
-import TempPrompt from "./TempPrompt";
+import ElemPrompt from "./ElemPrompt";
 import {ms} from "../../utils/Delay";
+import * as THREE from "three";
+import Aspect from "./Aspect";
+import Tile from "../../game/Tile";
+import Meld from "../../game/Meld";
+import GameManager from "./GameManager";
+import Resources from "./Resources";
+import ElemHotbar from "./ElemHotbar";
 
 export default function SceneGame(props: {
     socket: Socket
@@ -15,16 +18,25 @@ export default function SceneGame(props: {
 
     let gm: GameManager;
 
-    const onStart = async (scene: Scene, renderer: Renderer) => {
-        gm = new GameManager(scene);
+    const onStart = async (renderer: THREE.WebGLRenderer, scene: THREE.Scene) => {
+        gm = new GameManager(scene, (hotbar: Tile[], drew: Tile | null) => {
+            setHotbar(hotbar);
+            setDrew(drew);
+        });
         gm.onInit();
 
+        Resources.getTexture("img/symbols.png").anisotropy = renderer.capabilities.getMaxAnisotropy();
+        Resources.getTexture("img/symbols.png").encoding = THREE.sRGBEncoding;
+
+        //TODO
         props.socket.emit(Messages.ROOM_CREATE, {});
         await ms(100);
         props.socket.emit(Messages.ROOM_START, {});
         await ms(100);
     };
 
+    const [hotbar, setHotbar] = useState<Tile[]>([]);
+    const [drew, setDrew] = useState<Tile | null>(null);
     const [prompt, setPrompt] = useState(null);
 
     useEffect(() => {
@@ -122,11 +134,16 @@ export default function SceneGame(props: {
         };
     }, [props.socket]);
 
-    return <div className={"w-screen h-screen overflow-hidden"}>
-        <TempPrompt prompt={prompt} onDecide={(decision: number) => {
+    const onDiscard = (tile: Tile) => {
+        props.socket.emit(Messages.DECIDE_DISCARD, tile.serialize());
+    };
+
+    return <Aspect aspect={4 / 3}>
+        <ElemPrompt prompt={prompt} onDecide={(decision: number) => {
             setPrompt(null);
             props.socket.emit(Messages.DECIDE_PROMPT, decision);
         }}/>
+        <ElemHotbar hotbar={hotbar} drew={drew} onDiscard={onDiscard}/>
         <ThreeScene onStart={onStart}/>
-    </div>;
+    </Aspect>;
 };

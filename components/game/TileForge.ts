@@ -1,10 +1,11 @@
 import * as Three from "three";
-import Tile from "../mechanics/Tile";
 import Resources from "./Resources";
+import Tile from "../../game/Tile";
 
 export default class TileForge {
 
     static spawnTile() {
+        console.log(Resources.getGLTF("models/tile.glb"));
         const tileObj = <Three.Mesh>Resources.getGLTF("models/tile.glb").scene.children[0].clone();
 
         let decalGeometry = new Three.PlaneGeometry(.02 * 1.05, .03 * 1.05, 1);
@@ -16,7 +17,7 @@ export default class TileForge {
             polygonOffset: true,
             polygonOffsetFactor: -4,
         });
-        decalMaterial.roughness = 1;
+        decalMaterial.roughness = 0;
         let decalObj = new Three.Mesh(decalGeometry, decalMaterial);
         tileObj.attach(decalObj);
         decalObj.position.set(0, 0, .01);
@@ -27,16 +28,15 @@ export default class TileForge {
     }
 
     static setTileVirtual(tileObj: Three.Object3D, virtual: boolean) {
-        tileObj.castShadow = true;
-        tileObj.layers.set(0);
-        tileObj.traverse(obj => obj.userData["virtual"] = true);
-        tileObj.children[0].layers.set(0);
-        return;
+        // tileObj.castShadow = true;
+        // tileObj.layers.set(0);
+        // tileObj.traverse(obj => obj.userData["virtual"] = true);
+        // tileObj.children[0].layers.set(0);
+        // return;
         tileObj.castShadow = !virtual;
         tileObj.layers.set(virtual ? 1 : 0);
-        //TEMP
+        tileObj.children[0].layers.set(0);
         tileObj.traverse(obj => obj.userData["virtual"] = virtual);
-
         let decal = tileObj.children[0];
         decal.layers.set(virtual ? 1 : 0);
     }
@@ -46,10 +46,10 @@ export default class TileForge {
         tileObj.userData.tile = tile;
 
         const decal = <Three.Mesh>tileObj.children[0];
-        let x = !tile ? 4 : tile.rank;
-        let y = 4 - (!tile ? 8 : tile.suit);
+        let y = 5 - (!tile ? 5 : tile.suit);
+        let x = !tile ? 0 : tile.rank;
         let offsetX = 1 / 9;
-        let offsetY = 1 / 5;
+        let offsetY = 1 / 6;
 
         let uvPos = [
             [

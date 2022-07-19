@@ -2,9 +2,7 @@ import * as Three from "three";
 import TileForge from "./TileForge";
 import Resources from "./Resources";
 import anime from "animejs";
-import Room from "./Room";
 import GameManager from "./GameManager";
-import {Object3D} from "three";
 
 export default class Animator {
 
