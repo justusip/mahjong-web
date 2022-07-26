@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: hannotate;
+    src: url("/fonts/jf-openhuninn-1.1.ttf");
+}
+
+:root {
+    color-scheme: dark;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/*body {*/
+/*    width: 100%;*/
+/*    height: 100vh;*/
+/*    min-width: 1200px;*/
+/*    margin: 0;*/
+/*    user-select: none;*/
+/*    color: #333;*/
+/*    background: #fff;*/
+/*    font-family: hannotate, sans-serif;*/
+/*}*/
+
