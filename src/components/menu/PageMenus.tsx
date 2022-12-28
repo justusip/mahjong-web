@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 
+import SceneLobby from "./SceneLobby";
 import FragHome from "../frags/FragHome";
 import FragJoinOrCreateRoom from "../frags/FragJoinOrCreateRoom";
 import FragJoinRoom from "../frags/FragJoinRoom";
@@ -30,6 +31,6 @@ export default function PageMenus(): React.ReactElement {
             <FragJoinRoom in={innerPage === Page.JOIN_ROOM}/>
             <FragRoom in={innerPage === Page.ROOM}/>
         </div>
-        {/*<SceneLobby/>*/}
+        <SceneLobby/>
     </>;
 }

@@ -89,7 +89,7 @@ export default class Table {
         this.screen.draw(0, 0, 69, [0, 0, 0, 0]);
     }
 
-    onSetState(players: { hotbar: (Tile | null)[], melds: Meld[], flowers: Tile[] }[], fung: number, guk: number) {
+    onReset(players: { hotbar: (Tile | null)[], melds: Meld[], flowers: Tile[] }[], fung: number, guk: number) {
         this.animator.onReset();
         this.tableObj.remove(...this.tableObj.children.filter(o => o.type === "Group"));
         const addContainer = (pid: number): THREE.Group => {

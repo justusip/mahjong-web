@@ -10,6 +10,7 @@ import {ms} from "../utils/Delay";
 export default function GameProvider(props: React.PropsWithChildren) {
 
     const serverURL = "ws://localhost:2299";
+    const [isLoaded, setIsLoaded] = useState(false);
     const [socket, setSocket] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
 
@@ -17,15 +18,24 @@ export default function GameProvider(props: React.PropsWithChildren) {
     const [errorShown, setErrorShown] = useState(false);
     const [errorCode, setErrorCode] = useState(null);
 
-    const [page, setPage] = useState(Page.SPLASH);
+    const [page, setPage] = useState(Page.GAME);
 
     const [roomStatus, setRoomStatus] = useState<RoomStatus | null>(null);
+
+    //TODO Rapid prototyping
+    useEffect(() => {
+        if (!isConnected || !isLoaded)
+            return;
+        // socket.emit(Messages.ROOM_CREATE);
+        // socket.emit(Messages.ROOM_SET_READY, {ready: true});
+        // socket.emit(Messages.ROOM_START);
+    }, [isConnected, isLoaded]);
 
     useEffect(() => {
         (async () => {
             await Resources.load();
-            // setPage(Page.TITLE);
-            setPage(Page.GAME);
+            setIsLoaded(true);
+            setPage(Page.TITLE);
         })();
     }, []);
 
@@ -73,14 +83,6 @@ export default function GameProvider(props: React.PropsWithChildren) {
         socket.on(Messages.ON_ROOM_START, () => {
             setPage(Page.GAME);
         });
-
-        // socket.on(Messages.ON_GAME_START, async (
-        //     pid: number,
-        //     names: string[]
-        // ) => {
-        //     table.onRoomStart(pid);
-        //     socket.emit(Messages.DECIDE_READY);
-        // });
 
         return () => {
             socket.disconnect();

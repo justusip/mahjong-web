@@ -16,7 +16,7 @@ export default class Tile {
     }
 
     serialize(): number {
-        return this.suit * 10 + this.rank;
+        return this.suit * 100 + this.rank * 10 + this.id;
     }
 
     static deserialize(obj: number): Tile {

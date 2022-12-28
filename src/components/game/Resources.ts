@@ -12,8 +12,8 @@ class Resources {
         "models/tile.glb",
         "models/arm.glb",
         "img/symbols.png",
-        // "models/interior.glb",
-        // "models/panda.glb",
+        "models/interior.glb",
+        "models/panda.glb",
     ];
     static library: { [url: string]: any } = {};
 

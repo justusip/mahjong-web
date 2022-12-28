@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import React, {useCallback, useContext, useEffect} from "react";
 import {useResizeDetector} from "react-resize-detector";
 import * as THREE from "three";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {RoomEnvironment} from "three/examples/jsm/environments/RoomEnvironment";
 import Stats from "three/examples/jsm/libs/stats.module";
 
@@ -9,8 +10,14 @@ import Resources from "./Resources";
 import Table from "./Table";
 import {GameContext} from "../GameProvider";
 import Aspect from "../generics/Aspect";
-import Meld, {MeldType} from "../../types/Meld";
-import Tile from "../../types/Tile";
+import DiscardEvent from "../../events/DiscardEvent";
+import DrewEvent from "../../events/DrewEvent";
+import {GameEventType} from "../../events/GameEventType";
+import GukEndEvent from "../../events/GukEndEvent";
+import GukStartEvent from "../../events/GukStartEvent";
+import MergeEvent from "../../events/MergeEvent";
+import {Messages} from "../../network/Messages";
+import GameStatus from "../../types/GameStatus";
 
 export default function SceneGame() {
     const ctx = useContext(GameContext);
@@ -52,6 +59,7 @@ export default function SceneGame() {
     const onMount = async () => {
         renderer = new THREE.WebGLRenderer({canvas: ref.current, antialias: true});
         renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.autoClear = false;
         stats = Stats();
 
         ref.current.parentElement.appendChild(stats.dom);
@@ -92,8 +100,11 @@ export default function SceneGame() {
         camera.position.set(0, 0.68, 0.73);
         camera.rotation.set(-45 / 180 * Math.PI, 0, 0);
         scene.add(camera);
+
         // cameraPivot.add(camera);
-        // const controls = new OrbitControls(camera, ref.current);
+
+        const controls = new OrbitControls(camera, ref.current);
+        controls.target.set(0, -.06, 0);
 
         const axesHelper = new THREE.AxesHelper(5);
         scene.add(axesHelper);
@@ -125,30 +136,6 @@ export default function SceneGame() {
         guk.anchor.set(0);
         pixiStage.addChild(guk);
 
-        for (let i = 0; i < 13; i++) {
-            const tile = PIXI.Sprite.from(`img/tiles/tile_${0}_${0}.png`);
-            tile.scale.set(.25);
-            tile.anchor.set(.5, 1);
-            tile.position.set(w / 2 + 65 * (-7 + i), h);
-            tile.interactive = true;
-            tile.tint = 0xeeeeee;
-            tile.on("pointerover", function (this: PIXI.Sprite) {
-                ref.current.style["cursor"] = "pointer";
-                this.tint = 0xffffff;
-            });
-            tile.on("pointerdown", function (this: PIXI.Sprite) {
-                this.tint = 0xdddddd;
-            });
-            tile.on("pointerup", function (this: PIXI.Sprite) {
-                this.tint = 0xffffff;
-            });
-            tile.on("pointerout", function (this: PIXI.Sprite) {
-                ref.current.style["cursor"] = null;
-                this.tint = 0xeeeeee;
-            });
-            pixiStage.addChild(tile);
-        }
-
         for (let i = 0; i < 4; i++) {
             const names = [
                 "超級無敵飛天少女",
@@ -178,16 +165,12 @@ export default function SceneGame() {
             pixiStage.addChild(name);
         }
 
-        const btnsPanel = new PIXI.Sprite(PIXI.Texture.WHITE);
-        btnsPanel.anchor.set(.5);
-        btnsPanel.position.set(1280 / 2, 580);
-        btnsPanel.width = 600;
-        btnsPanel.height = 60;
-        pixiStage.addChild(btnsPanel);
-
         onResize(width, height);
 
         onStart();
+
+        //notifies the server that we have finished loading
+        ctx.socket.emit(Messages.GUK_READY_START);
         frameId = requestAnimationFrame(onRender);
     };
 
@@ -200,41 +183,41 @@ export default function SceneGame() {
         table.onInit();
 
         table.onRoomStart(0);
-        table.onSetState([
-                {
-                    hotbar: Tile.parseList("b2 b2 b2 b3 b4 b5"),
-                    melds: [
-                        new Meld(MeldType.AmPung, ...Tile.parseList("a1 a2 a3")),
-                        new Meld(MeldType.AmPung, ...Tile.parseList("a4 a5 a6"))
-                    ],
-                    flowers: Tile.parseList("w1")
-                },
-                {
-                    hotbar: Tile.parseList("b1 b1 b1 b2 b2 b2 b3 b4 b5"),
-                    melds: [
-                        new Meld(MeldType.AmPung, ...Tile.parseList("a1 a2 a3"))
-                    ],
-                    flowers: Tile.parseList("w1")
-                },
-                {
-                    hotbar: Tile.parseList("a1 a2 a3 b1 b1 b1 b2 b2 b2 b3 b4 b5"),
-                    melds: [],
-                    flowers: []
-                },
-                {
-                    hotbar: Tile.parseList("b5"),
-                    melds: [
-                        new Meld(MeldType.AmGong, ...Tile.parseList("a1 a2 a3 a4")),
-                        new Meld(MeldType.AmGong, ...Tile.parseList("a1 a2 a3 a4")),
-                        new Meld(MeldType.AmGong, ...Tile.parseList("a1 a2 a3 a4")),
-                        new Meld(MeldType.AmGong, ...Tile.parseList("a1 a2 a3 a4")),
-                    ],
-                    flowers: Tile.parseList("w1")
-                }
-            ],
-            0,
-            0
-        );
+        // table.onSetState([
+        //         {
+        //             hotbar: Tile.parseList("b2 b2 b2 b3 b4 b5"),
+        //             melds: [
+        //                 new Meld(MeldType.AmPung, ...Tile.parseList("a1 a2 a3")),
+        //                 new Meld(MeldType.AmPung, ...Tile.parseList("a4 a5 a6"))
+        //             ],
+        //             flowers: Tile.parseList("w1")
+        //         },
+        //         {
+        //             hotbar: Tile.parseList("b1 b1 b1 b2 b2 b2 b3 b4 b5"),
+        //             melds: [
+        //                 new Meld(MeldType.AmPung, ...Tile.parseList("a1 a2 a3"))
+        //             ],
+        //             flowers: Tile.parseList("w1")
+        //         },
+        //         {
+        //             hotbar: Tile.parseList("a1 a2 a3 b1 b1 b1 b2 b2 b2 b3 b4 b5"),
+        //             melds: [],
+        //             flowers: []
+        //         },
+        //         {
+        //             hotbar: Tile.parseList("b5"),
+        //             melds: [
+        //                 new Meld(MeldType.AmGong, ...Tile.parseList("a1 a2 a3 a4")),
+        //                 new Meld(MeldType.AmGong, ...Tile.parseList("a1 a2 a3 a4")),
+        //                 new Meld(MeldType.AmGong, ...Tile.parseList("a1 a2 a3 a4")),
+        //                 new Meld(MeldType.AmGong, ...Tile.parseList("a1 a2 a3 a4")),
+        //             ],
+        //             flowers: Tile.parseList("w1")
+        //         }
+        //     ],
+        //     0,
+        //     0
+        // );
     };
 
     const interval = 1 / 30 * 1000;
@@ -245,50 +228,58 @@ export default function SceneGame() {
         if (curTime > nextUpdate) {
             nextUpdate = curTime + interval;
             const delta = clock.getDelta();
+
+            renderer.clear();
             renderer.resetState();
             renderer.render(scene, camera);
+
             pixiRenderer.reset();
             pixiRenderer.render(pixiStage, {clear: false});
             stats.update();
         }
     };
 
-    // useEffect(() => {
-    //     ctx.socket.on(Messages.ON_GAME_EVENT, (
-    //         id: number,
-    //         gs: any,
-    //         eventType: GameEventType,
-    //         data: any
-    //     ) => {
-    //         const gameStatus = GameStatus.deserialize(gs);
-    //         switch (eventType) {
-    //             case GameEventType.START: {
-    //                 const event = GukStartEvent.deserialize(data);
-    //                 table.onResetTable(gameStatus.players)
-    //                 break;
-    //             }
-    //             case GameEventType.DREW: {
-    //                 const event = DrewEvent.deserialize(data);
-    //                 break;
-    //             }
-    //             case GameEventType.DISCARD: {
-    //                 const event = DiscardEvent.deserialize(data);
-    //                 break;
-    //             }
-    //             case GameEventType.MERGE: {
-    //                 const event = MergeEvent.deserialize(data);
-    //                 break;
-    //             }
-    //             case GameEventType.END: {
-    //                 const event = GukEndEvent.deserialize(data);
-    //                 break;
-    //             }
-    //         }
-    //     });
-    // });
+    useEffect(() => {
+        ctx.socket.on(Messages.ON_GAME_EVENT, (
+            id: number,
+            gs: any,
+            eventType: GameEventType,
+            data: any
+        ) => {
+            const gameStatus = GameStatus.deserialize(gs);
+            switch (eventType) {
+                case GameEventType.START: {
+                    const event = GukStartEvent.deserialize(data);
+                    table.onReset(gameStatus.players, event.fung, event.guk);
+                    console.log(gameStatus);
+                    break;
+                }
+                case GameEventType.DREW: {
+                    const event = DrewEvent.deserialize(data);
+                    break;
+                }
+                case GameEventType.DISCARD: {
+                    const event = DiscardEvent.deserialize(data);
+                    break;
+                }
+                case GameEventType.MERGE: {
+                    const event = MergeEvent.deserialize(data);
+                    break;
+                }
+                case GameEventType.END: {
+                    const event = GukEndEvent.deserialize(data);
+                    break;
+                }
+            }
+        });
+        return () => {
+            ctx.socket.off(Messages.ON_GAME_EVENT);
+        };
+    }, []);
 
     return <Aspect aspect={16 / 9}>
         {/*<img className={"absolute opacity-30 w-full"} src={"img/Screenshot 2022-07-20 at 9.20.33 PM.png"}/>*/}
+        <div className="absolute left-[32%] right-[32%] bg-white bottom-[16%] bg-neutral-500 p-[1%] ">食</div>
         <canvas ref={ref} className="block w-full h-full"/>
     </Aspect>;
 }

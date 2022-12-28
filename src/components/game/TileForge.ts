@@ -36,11 +36,11 @@ export default class TileForge {
     }
 
     static setTileVirtual(tileObj: THREE.Object3D, virtual: boolean) {
-        // tileObj.castShadow = true;
-        // tileObj.layers.set(0);
-        // tileObj.traverse(obj => obj.userData["virtual"] = true);
-        // tileObj.children[0].layers.set(0);
-        // return;
+        tileObj.castShadow = true;
+        tileObj.layers.set(0);
+        tileObj.traverse(obj => obj.userData["virtual"] = true);
+        tileObj.children[0].layers.set(0);
+        return;
         tileObj.castShadow = !virtual;
         tileObj.layers.set(virtual ? 1 : 0);
         tileObj.children[0].layers.set(0);
@@ -48,7 +48,6 @@ export default class TileForge {
         const decal = tileObj.children[0];
         decal.layers.set(virtual ? 1 : 0);
     }
-
 
     static setTile(tileObj: THREE.Object3D, tile: Tile) {
         tileObj.userData.tile = tile;

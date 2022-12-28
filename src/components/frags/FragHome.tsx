@@ -24,7 +24,7 @@ export default function FragHome(props: {
                         [
                             {
                                 icon: <GiPodium/>,
-                                name: "瑪灼聯盟",
+                                name: "maka聯盟",
                                 desc: "同世界各地嘅麻雀玩家展開熱火朝天嘅對決",
                                 colour: "bg-amber-700 border-amber-900 text-amber-200 hover:bg-amber-600 active:bg-amber-700",
                                 onClick: props.requestLogin
@@ -63,7 +63,7 @@ export default function FragHome(props: {
                 </div>
             </div>
             <Header>
-                <HeaderSection>Chronica™</HeaderSection>
+                <HeaderSection>moougi™</HeaderSection>
                 <HeaderButton onClick={props.requestLogin}><IoLogIn/>登入</HeaderButton>
             </Header>
         </div>
