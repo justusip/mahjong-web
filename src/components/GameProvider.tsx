@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from "react";
-import {io, Socket} from "socket.io-client";
+import {Socket} from "socket.io-client";
 
 import Resources from "./game/Resources";
 import Page from "./Page";
-import {Messages} from "../network/Messages";
 import RoomStatus from "../types/RoomStatus";
 import {ms} from "../utils/Delay";
 
@@ -18,7 +17,7 @@ export default function GameProvider(props: React.PropsWithChildren) {
     const [errorShown, setErrorShown] = useState(false);
     const [errorCode, setErrorCode] = useState(null);
 
-    const [page, setPage] = useState(Page.GAME);
+    const [page, setPage] = useState(Page.SPLASH);
 
     const [roomStatus, setRoomStatus] = useState<RoomStatus | null>(null);
 
@@ -35,7 +34,8 @@ export default function GameProvider(props: React.PropsWithChildren) {
         (async () => {
             await Resources.load();
             setIsLoaded(true);
-            setPage(Page.TITLE);
+            // setPage(Page.TITLE);
+            setPage(Page.GAME);
         })();
     }, []);
 
@@ -61,34 +61,34 @@ export default function GameProvider(props: React.PropsWithChildren) {
         return result;
     };
 
-    useEffect(() => {
-        const socket = io(serverURL);
-        setSocket(socket);
-
-        socket.on("connect", () => {
-            console.log(`Connected to ${serverURL}.`);
-            setIsConnected(true);
-        });
-        socket.on("disconnect", () => {
-            console.log(`Disconnected from ${serverURL}.`);
-            setIsConnected(false);
-        });
-
-        socket.on(Messages.ON_ROOM_UPDATE, (args: { status: RoomStatus }) => {
-            setRoomStatus(args.status);
-            if (args.status)
-                setPage(Page.ROOM);
-        });
-
-        socket.on(Messages.ON_ROOM_START, () => {
-            setPage(Page.GAME);
-        });
-
-        return () => {
-            socket.disconnect();
-            socket.removeAllListeners();
-        };
-    }, []);
+    // useEffect(() => {
+    //     const socket = io(serverURL);
+    //     setSocket(socket);
+    //
+    //     socket.on("connect", () => {
+    //         console.log(`Connected to ${serverURL}.`);
+    //         setIsConnected(true);
+    //     });
+    //     socket.on("disconnect", () => {
+    //         console.log(`Disconnected from ${serverURL}.`);
+    //         setIsConnected(false);
+    //     });
+    //
+    //     socket.on(Messages.ON_ROOM_UPDATE, (args: { status: RoomStatus }) => {
+    //         setRoomStatus(args.status);
+    //         if (args.status)
+    //             setPage(Page.ROOM);
+    //     });
+    //
+    //     socket.on(Messages.ON_ROOM_START, () => {
+    //         setPage(Page.GAME);
+    //     });
+    //
+    //     return () => {
+    //         socket.disconnect();
+    //         socket.removeAllListeners();
+    //     };
+    // }, []);
 
     return <GameContext.Provider value={{
         socket, isConnected, socketRequest,

@@ -2097,6 +2097,11 @@ pify@^2.3.0:
   resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"
   integrity sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==
 
+pixi-projection@^0.4.4:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/pixi-projection/-/pixi-projection-0.4.4.tgz#2d39bcba084f63f7fc0460e9520ebb2d44912c71"
+  integrity sha512-oZMlfx7CFjxw4F0jkZXdOtJ5rbnHCQ+EdM6f6++CbzQvYnhB9ULKSobP2ZgrQ4oXag1KRJYwwSMSlz77lU/4wA==
+
 pixi.js@^6.5.1:
   version "6.5.8"
   resolved "https://registry.yarnpkg.com/pixi.js/-/pixi.js-6.5.8.tgz#9c4962d9cc37f43b58b92fdc2c1ab62f1b1de12c"

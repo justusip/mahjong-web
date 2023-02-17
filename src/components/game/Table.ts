@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import Animator from "./Animator";
-import MiniScreen from "./MiniScreen";
+// import MiniScreen from "./MiniScreen";
 import Resources from "./Resources";
 import TileForge from "./TileForge";
 import Meld, {MeldType} from "../../types/Meld";
@@ -43,7 +43,7 @@ export default class Table {
         new THREE.Vector3(-.2, .024, -.14),
     ];
 
-    screen: MiniScreen;
+    // screen: MiniScreen;
 
     constructor(scene: THREE.Scene
     ) {
@@ -72,10 +72,10 @@ export default class Table {
             this.handMixers.push(new THREE.AnimationMixer(hand));
         }
 
-        this.screen = new MiniScreen();
-        this.scene.add(this.screen);
-        this.screen.rotation.x = -Math.PI / 2;
-        this.screen.position.set(0, .01, 0);
+        // this.screen = new MiniScreen();
+        // this.scene.add(this.screen);
+        // this.screen.rotation.x = -Math.PI / 2;
+        // this.screen.position.set(0, .01, 0);
 
         this.updateDisplay();
     }
@@ -86,7 +86,7 @@ export default class Table {
     }
 
     updateDisplay() {
-        this.screen.draw(0, 0, 69, [0, 0, 0, 0]);
+        // this.screen.draw(0, 0, 69, [0, 0, 0, 0]);
     }
 
     onReset(players: { hotbar: (Tile | null)[], melds: Meld[], flowers: Tile[] }[], fung: number, guk: number) {

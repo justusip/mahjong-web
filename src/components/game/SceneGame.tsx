@@ -1,71 +1,109 @@
-import * as PIXI from "pixi.js";
 import React, {useCallback, useContext, useEffect} from "react";
 import {useResizeDetector} from "react-resize-detector";
 import * as THREE from "three";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {Vector2} from "three";
 import {RoomEnvironment} from "three/examples/jsm/environments/RoomEnvironment";
 import Stats from "three/examples/jsm/libs/stats.module";
 
-import Resources from "./Resources";
-import Table from "./Table";
+import Prompt from "./Prompt";
 import {GameContext} from "../GameProvider";
 import Aspect from "../generics/Aspect";
-import DiscardEvent from "../../events/DiscardEvent";
-import DrewEvent from "../../events/DrewEvent";
-import {GameEventType} from "../../events/GameEventType";
-import GukEndEvent from "../../events/GukEndEvent";
-import GukStartEvent from "../../events/GukStartEvent";
-import MergeEvent from "../../events/MergeEvent";
-import {Messages} from "../../network/Messages";
-import GameStatus from "../../types/GameStatus";
 
 export default function SceneGame() {
     const ctx = useContext(GameContext);
 
+    // const ref = React.useRef<HTMLCanvasElement>();
     let renderer: THREE.WebGLRenderer;
     let scene: THREE.Scene;
-    const clock = new THREE.Clock();
-
-    let stats: Stats;
-    let frameId: number;
     let camera: THREE.PerspectiveCamera;
+    let raycaster: THREE.Raycaster;
 
-    let table: Table;
+    const clock = new THREE.Clock();
+    let stats: Stats;
 
-    let pixiRenderer: PIXI.Renderer;
-    let pixiStage: PIXI.Container;
+    // let table: Table;
+    let prompt: Prompt = null;
+
+    const mousePos = new THREE.Vector2();
 
     const onResize = useCallback((width: number, height: number) => {
+        if (!renderer || !camera)
+            return;
+        ref.current.width = width;
+        ref.current.height = height;
         renderer.setSize(width, height, false);
         renderer.setPixelRatio(window.devicePixelRatio);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
-
-        pixiRenderer.resize(width, height);
-        pixiRenderer.resolution = window.devicePixelRatio;
-        pixiStage.width = 1280;
-        pixiStage.height = 720;
-        pixiStage.scale.set(width / 1280);
-    }, [camera, pixiRenderer, renderer]);
+    }, [camera, renderer]);
     const {width, height, ref} = useResizeDetector({onResize});
 
     useEffect(() => {
-        onMount().then();
+        if (!ref.current)
+            return;
+        const elem = ref.current as HTMLCanvasElement;
+        const handlePointerEvent = (eventName: string) =>
+            (e: PointerEvent) => {
+                const rect = elem.getBoundingClientRect();
+                mousePos.x = (e.clientX - rect.left) / rect.width;
+                mousePos.y = (e.clientY - rect.top) / rect.height;
+                raycaster.setFromCamera(new Vector2(mousePos.x * 2 - 1, -mousePos.y * 2 + 1), camera);
+                const intersects = raycaster.intersectObjects([prompt], false);
+                if (intersects.length > 0) {
+                    const intersect = intersects.find(o => o.object === prompt);
+                    if (intersect) {
+                        const ev = new MouseEvent(eventName, {
+                            bubbles: true,
+                            cancelable: true,
+                            clientX: intersect.uv.x * prompt.width,
+                            clientY: prompt.height - (intersect.uv.y * prompt.height)
+                        });
+                        prompt.canvasElem.dispatchEvent(ev);
+                    }
+                }
+            };
+        const eventHandlers = ["pointermove", "pointerup", "pointerdown"]
+            .map(o => ({name: o, handler: handlePointerEvent(o)}));
+        eventHandlers.forEach(({name, handler}) => {
+            elem.addEventListener(name, handler as (e: Event) => void);
+        });
         return () => {
-            onUnmount().then();
+            eventHandlers.forEach(({name, handler}) => {
+                elem.removeEventListener(name, handler as (e: Event) => void);
+            });
+        };
+    }, [ref]);
+
+    useEffect(() => {
+        onStart();
+        const updateInterval = 1 / 30 * 1000;
+        let nextUpdate = 0;
+        let frameId = 0;
+        const loop = () => {
+            frameId = requestAnimationFrame(loop);
+            const curTime = performance.now();
+            if (curTime > nextUpdate) {
+                nextUpdate = curTime + updateInterval;
+                onUpdate();
+            }
+        };
+        frameId = requestAnimationFrame(loop);
+        return () => {
+            cancelAnimationFrame(frameId);
+            onEnd();
         };
     }, []);
 
-    const onMount = async () => {
+    const onStart = () => {
         renderer = new THREE.WebGLRenderer({canvas: ref.current, antialias: true});
         renderer.outputEncoding = THREE.sRGBEncoding;
-        renderer.autoClear = false;
+
         stats = Stats();
-
         ref.current.parentElement.appendChild(stats.dom);
-        scene = new THREE.Scene();
 
+        scene = new THREE.Scene();
         scene.background = new THREE.Color(0xbfe3dd);
+
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
         scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.01).texture;
 
@@ -79,6 +117,8 @@ export default function SceneGame() {
         const cameraPivot = new THREE.Group();
         cameraPivot.name = "cameraPivot";
         scene.add(cameraPivot);
+
+        raycaster = new THREE.Raycaster();
 
         // const gui = new GUI();
         // const params = {
@@ -103,87 +143,31 @@ export default function SceneGame() {
 
         // cameraPivot.add(camera);
 
-        const controls = new OrbitControls(camera, ref.current);
-        controls.target.set(0, -.06, 0);
+        // const controls = new OrbitControls(camera, ref.current);
+        // controls.target.set(0, -.06, 0);
 
         const axesHelper = new THREE.AxesHelper(5);
         scene.add(axesHelper);
 
-        Resources.getTexture("img/symbols.png").anisotropy = renderer.capabilities.getMaxAnisotropy();
-        Resources.getTexture("img/symbols.png").encoding = THREE.sRGBEncoding;
-
-        pixiRenderer = new PIXI.Renderer({
-            width,
-            height,
-            backgroundAlpha: 0,
-            view: ref.current,
-            context: ref.current.context,
-            resolution: window.devicePixelRatio
-        });
-
-        pixiStage = new PIXI.Container();
-        pixiStage.width = 1280;
-        pixiStage.height = 720;
-        pixiStage.scale.set(width / 1280);
-        const w = 1280;
-        const h = 720;
-
-        const guk = new PIXI.Text('Mazoria-Client v0.?', {
-            fontFamily: "monospace",
-            fontSize: 16,
-            fill: "#ffffff"
-        });
-        guk.anchor.set(0);
-        pixiStage.addChild(guk);
-
-        for (let i = 0; i < 4; i++) {
-            const names = [
-                "超級無敵飛天少女",
-                "as",
-                "ass8287",
-                "assyabyes"
-            ];
-            const name = new PIXI.Text(names[i], {fill: "white", fontFamily: "Verdana", fontSize: 16});
-            name.anchor.set(.5);
-            const pos = [
-                [240, 580], //front
-                [1280 - 250, 360], //right
-                [900, 80], //back
-                [250, 360], //left
-            ];
-            name.position.set(...pos[i]);
-
-            const nameBg = new PIXI.Sprite(PIXI.Texture.WHITE);
-            nameBg.tint = 0;
-            nameBg.alpha = .5;
-            nameBg.width = name.width + 8;
-            nameBg.height = name.height + 8;
-            nameBg.anchor.set(.5);
-            nameBg.position.set(...pos[i]);
-            pixiStage.addChild(nameBg);
-
-            pixiStage.addChild(name);
-        }
+        // Resources.getTexture("img/symbols.png").anisotropy = renderer.capabilities.getMaxAnisotropy();
+        // Resources.getTexture("img/symbols.png").encoding = THREE.sRGBEncoding;
 
         onResize(width, height);
 
-        onStart();
-
         //notifies the server that we have finished loading
-        ctx.socket.emit(Messages.GUK_READY_START);
-        frameId = requestAnimationFrame(onRender);
-    };
+        // ctx.socket.emit(Messages.GUK_READY_START);
 
-    const onUnmount = async () => {
-        cancelAnimationFrame(frameId);
-    };
+        prompt = new Prompt(renderer.context);
+        scene.add(prompt);
+        prompt.position.set(0, 0.01, .16);
+        prompt.rotation.x = -Math.PI / 2;
+        prompt.init();
 
-    const onStart = async () => {
-        table = new Table(scene);
-        table.onInit();
-
-        table.onRoomStart(0);
-        // table.onSetState([
+        // table = new Table(scene);
+        // table.onInit();
+        //
+        // table.onRoomStart(0);
+        // table.onReset([
         //         {
         //             hotbar: Tile.parseList("b2 b2 b2 b3 b4 b5"),
         //             melds: [
@@ -220,66 +204,58 @@ export default function SceneGame() {
         // );
     };
 
-    const interval = 1 / 30 * 1000;
-    let nextUpdate = 0;
-    const onRender = () => {
-        frameId = requestAnimationFrame(onRender);
-        const curTime = performance.now();
-        if (curTime > nextUpdate) {
-            nextUpdate = curTime + interval;
-            const delta = clock.getDelta();
-
-            renderer.clear();
-            renderer.resetState();
-            renderer.render(scene, camera);
-
-            pixiRenderer.reset();
-            pixiRenderer.render(pixiStage, {clear: false});
-            stats.update();
-        }
+    const onUpdate = () => {
+        prompt.draw();
+        renderer.resetState();
+        renderer.render(scene, camera);
+        stats.update();
     };
 
-    useEffect(() => {
-        ctx.socket.on(Messages.ON_GAME_EVENT, (
-            id: number,
-            gs: any,
-            eventType: GameEventType,
-            data: any
-        ) => {
-            const gameStatus = GameStatus.deserialize(gs);
-            switch (eventType) {
-                case GameEventType.START: {
-                    const event = GukStartEvent.deserialize(data);
-                    table.onReset(gameStatus.players, event.fung, event.guk);
-                    console.log(gameStatus);
-                    break;
-                }
-                case GameEventType.DREW: {
-                    const event = DrewEvent.deserialize(data);
-                    break;
-                }
-                case GameEventType.DISCARD: {
-                    const event = DiscardEvent.deserialize(data);
-                    break;
-                }
-                case GameEventType.MERGE: {
-                    const event = MergeEvent.deserialize(data);
-                    break;
-                }
-                case GameEventType.END: {
-                    const event = GukEndEvent.deserialize(data);
-                    break;
-                }
-            }
-        });
-        return () => {
-            ctx.socket.off(Messages.ON_GAME_EVENT);
-        };
-    }, []);
+    const onEnd = () => {
+        prompt.dispose();
+        renderer?.dispose();
+    };
+
+    // useEffect(() => {
+    //     ctx.socket.on(Messages.ON_GAME_EVENT, (
+    //         id: number,
+    //         gs: any,
+    //         eventType: GameEventType,
+    //         data: any
+    //     ) => {
+    //         const gameStatus = GameStatus.deserialize(gs);
+    //         switch (eventType) {
+    //             case GameEventType.START: {
+    //                 const event = GukStartEvent.deserialize(data);
+    //                 table.onReset(gameStatus.players, event.fung, event.guk);
+    //                 console.log(gameStatus);
+    //                 break;
+    //             }
+    //             case GameEventType.DREW: {
+    //                 const event = DrewEvent.deserialize(data);
+    //                 break;
+    //             }
+    //             case GameEventType.DISCARD: {
+    //                 const event = DiscardEvent.deserialize(data);
+    //                 break;
+    //             }
+    //             case GameEventType.MERGE: {
+    //                 const event = MergeEvent.deserialize(data);
+    //                 break;
+    //             }
+    //             case GameEventType.END: {
+    //                 const event = GukEndEvent.deserialize(data);
+    //                 break;
+    //             }
+    //         }
+    //     });
+    //     return () => {
+    //         ctx.socket.off(Messages.ON_GAME_EVENT);
+    //     };
+    // }, []);
 
     return <Aspect aspect={16 / 9}>
-        {/*<img className={"absolute opacity-30 w-full"} src={"img/Screenshot 2022-07-20 at 9.20.33 PM.png"}/>*/}
-        <div className="absolute left-[32%] right-[32%] bg-white bottom-[16%] bg-neutral-500 p-[1%] ">食</div>
+        {/*<img className="absolute opacity-30 w-full" src="img/Screenshot 2022-07-20 at 9.20.33 PM.png"/>*/}
         <canvas ref={ref} className="block w-full h-full"/>
     </Aspect>;
 }
