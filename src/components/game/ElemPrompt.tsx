@@ -1,7 +1,7 @@
 import React from "react";
 
-import IntrinsicButton from "../generics/IntrinsicButton";
-import Meld from "../../types/Meld";
+import IntrinsicButton from "../generic/IntrinsicButton";
+import Meld from "@/types/Meld";
 
 export default function ElemPrompt(props: {
     prompt: {

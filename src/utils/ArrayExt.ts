@@ -1,11 +1,13 @@
-import Meld from "../types/Meld";
-import Tile from "../types/Tile";
+import Meld from "@/types/Meld";
+import Tile from "@/types/Tile";
 
 declare global {
     interface Array<T> {
         isEmpty(): boolean;
 
         first(): T | null;
+
+        last(): T | null;
 
         occurrence(o: T): number;
 
@@ -49,6 +51,12 @@ Array.prototype.first = function <T>(): T | null {
     if (this.length === 0)
         return null;
     return this[0];
+};
+
+Array.prototype.last = function <T>(): T | null {
+    if (this.length === 0)
+        return null;
+    return this[this.length - 1];
 };
 
 Array.prototype.occurrence = function <T>(o: T): number {

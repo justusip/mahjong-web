@@ -1,31 +1,8 @@
-import EventData from "./EventData";
-import {GameEventType} from "./GameEventType";
+import Event from "./Event";
+import EventType from "@/events/EventType";
 
-export default class GukStartEvent extends EventData {
-    fung: number;
-    guk: number;
-
-    constructor(fung: number, guk: number) {
-        super(GameEventType.START);
-        this.fung = fung;
-        this.guk = guk;
-    }
-
-    serialize(): unknown {
-        return [
-            this.fung,
-            this.guk
-        ];
-    }
-
-    static deserialize(obj: [
-        fung: number,
-        guk: number
-    ]) {
-        const [fung, guk] = obj;
-        return new GukStartEvent(
-            fung,
-            guk
-        );
+export default class GukStartEvent extends Event {
+    constructor() {
+        super(EventType.ON_GUK_START);
     }
 }

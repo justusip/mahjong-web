@@ -1,6 +1,6 @@
 import React from "react";
 
-import Tile from "../../types/Tile";
+import Tile from "@/types/Tile";
 
 export default function ElemHotbar(props: {
     hotbar: Tile[],

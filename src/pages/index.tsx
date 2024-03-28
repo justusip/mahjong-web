@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 
 import App from "../components/App";
 import GameProvider from "../components/GameProvider";
-import IsUsingMobile from "../utils/IsUsingMobile";
+import IsUsingMobile from "@/utils/IsUsingMobile";
 
 const Home: NextPage = () => {
 

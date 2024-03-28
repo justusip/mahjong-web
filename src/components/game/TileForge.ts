@@ -1,16 +1,16 @@
 import * as THREE from "three";
 
 import Resources from "./Resources";
-import Tile from "../../types/Tile";
+import Tile from "@/types/Tile";
 
 export default class TileForge {
 
-    static spawnTile() {
+    static instantiateTile(tile: Tile | null): THREE.Object3D {
         const tileObj = <THREE.Mesh>Resources.getGLTF("models/tile.glb").scene.children[0].clone();
         tileObj.traverse(child => {
             if (child instanceof THREE.Mesh) {
                 child.material = new THREE.MeshToonMaterial({
-                    color: new THREE.Color(0xffffff),
+                    color: new THREE.Color(0xffffffff),
                     map: (child.material as THREE.MeshStandardMaterial).map
                 });
             }
@@ -24,22 +24,34 @@ export default class TileForge {
             depthWrite: false,
             polygonOffset: true,
             polygonOffsetFactor: -4,
+            // reflectivity: 0
         });
         const decalObj = new THREE.Mesh(decalGeometry, decalMaterial);
         tileObj.attach(decalObj);
         decalObj.position.set(0, 0, .01);
 
         this.setTileVirtual(tileObj, false);
-        this.setTile(tileObj, null);
+        this.setTileDecal(tileObj, tile);
 
         return tileObj;
+    }
+
+    static setSelected(tileObj: THREE.Object3D, selected: boolean) {
+        const colour = selected ? 0x66ffff00 : 0xffffffff;
+        const colourObj = new THREE.Color(colour);
+        tileObj.traverse(child => {
+            if (child instanceof THREE.Mesh) {
+                const mat = child.material as THREE.MeshToonMaterial;
+                mat.color = colourObj;
+            }
+        });
     }
 
     static setTileVirtual(tileObj: THREE.Object3D, virtual: boolean) {
         tileObj.castShadow = true;
         tileObj.layers.set(0);
         tileObj.traverse(obj => obj.userData["virtual"] = true);
-        tileObj.children[0].layers.set(0);
+        // tileObj.children[0].layers.set(0);
         return;
         tileObj.castShadow = !virtual;
         tileObj.layers.set(virtual ? 1 : 0);
@@ -49,7 +61,7 @@ export default class TileForge {
         decal.layers.set(virtual ? 1 : 0);
     }
 
-    static setTile(tileObj: THREE.Object3D, tile: Tile) {
+    static setTileDecal(tileObj: THREE.Object3D, tile: Tile) {
         tileObj.userData.tile = tile;
 
         const decal = <THREE.Mesh>tileObj.children[0];

@@ -1,9 +1,9 @@
 export default class Tile {
     suit: number;
     rank: number;
-    id: number;
+    variant: number;
 
-    constructor(suit: number, rank: number, id: number) {
+    constructor(suit: number, rank: number, variant: number) {
         // if (isNaN(suit) || suit < 0 || suit > 4)
         //     throw new Error(`InvalidTileRangeException: Requested suit ${suit} rank ${rank}`);
         //
@@ -12,11 +12,11 @@ export default class Tile {
 
         this.suit = suit;
         this.rank = rank;
-        this.id = id;
+        this.variant = variant;
     }
 
     serialize(): number {
-        return this.suit * 100 + this.rank * 10 + this.id;
+        return this.suit * 100 + this.rank * 10 + this.variant;
     }
 
     static deserialize(obj: number): Tile {
@@ -61,13 +61,13 @@ export default class Tile {
     identicalAs(t: Tile | null): boolean {
         if (!t)
             return false;
-        return this.suit === t.suit && this.rank === t.rank && this.id === t.id;
+        return this.suit === t.suit && this.rank === t.rank && this.variant === t.variant;
     }
 
     hasValue(suit: number, rank: number, id?: number) {
         if (this.suit === suit && this.rank === rank) {
             if (id) {
-                return this.id === id;
+                return this.variant === id;
             } else {
                 return true;
             }
@@ -86,7 +86,7 @@ export default class Tile {
     }
 
     add(offset: number): Tile {
-        return new Tile(this.suit, this.rank + offset, this.id);
+        return new Tile(this.suit, this.rank + offset, this.variant);
     }
 
     isMaan(): boolean {

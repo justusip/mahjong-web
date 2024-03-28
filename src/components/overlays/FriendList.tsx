@@ -1,10 +1,10 @@
 import React, {useState} from "react";
 
-import TileButton from "../generics/TileButton";
-import TileDialogue from "../generics/TileDialogue";
-import TileTextbox from "../generics/TileTextbox";
-import Overlay from "../pieces/Overlay";
-import {ms} from "../../utils/Delay";
+import Button from "../generic/Button";
+import CenterDialog from "../generic/CenterDialog";
+import Textbox from "../generic/Textbox";
+import Overlay from "../generic/Overlay";
+import {ms} from "@/utils/AsyncUtils";
 
 export default function FriendList(props: {
     shown: boolean,
@@ -47,26 +47,26 @@ export default function FriendList(props: {
                 }
             </div>
         </Overlay>
-        <TileDialogue className="w-full max-w-lg"
+        <CenterDialog className="w-full max-w-lg"
                       in={frdsAddShown}
                       header="新增朋友">
             請喺下面輸入一個Username或UID。
-            <TileTextbox className="mt-2"
-                         placeholder="Username/UID"
-                         maxLength={16}
-                         value={frdsAddUID}
-                         onChange={e => setFrdsAddUID(e.target.value)}/>
+            <Textbox className="mt-2"
+                     placeholder="Username/UID"
+                     maxLength={16}
+                     value={frdsAddUID}
+                     onChange={e => setFrdsAddUID(e.target.value)}/>
             <div className="flex gap-4 mt-4">
-                <TileButton className="flex-1"
-                            onClick={() => setFrdsAddShown(false)}>
+                <Button className="flex-1"
+                        onClick={() => setFrdsAddShown(false)}>
                     取消
-                </TileButton>
-                <TileButton className="flex-1"
-                            onClick={() => setFrdsAddShown(false)}
-                            disabled={frdsAddUID === ""}>
+                </Button>
+                <Button className="flex-1"
+                        onClick={() => setFrdsAddShown(false)}
+                        disabled={frdsAddUID === ""}>
                     增加朋友
-                </TileButton>
+                </Button>
             </div>
-        </TileDialogue>
+        </CenterDialog>
     </>;
 }

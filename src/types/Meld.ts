@@ -2,9 +2,9 @@ import Tile from "./Tile";
 
 export enum MeldType {
     MingPung,
-    AmPung,
+    AmPung, // Not in corner, only for calculating faan
     MingSoeng,
-    AmSoeng,
+    AmSoeng, // Not in corner, only for calculating faan
     MingGong,
     GaaGong,
     AmGong,
@@ -13,10 +13,12 @@ export enum MeldType {
 
 export default class Meld {
     meldType: MeldType;
+    causedBy: number;
     tiles: Tile[];
 
-    constructor(type: MeldType, ...tiles: Tile[]) {
+    constructor(type: MeldType, causedBy: number, tiles: Tile[]) {
         this.meldType = type;
+        this.causedBy = causedBy;
         if ((this.isPung() || this.isSoeng()) && tiles.length != 3)
             throw Error(`InvalidTilesCountException: Is meld of Pung/Soeng, expected 3 tiles, only ${tiles.length}`);
         if (this.isGong() && tiles.length != 4)
@@ -24,17 +26,19 @@ export default class Meld {
         this.tiles = tiles;
     }
 
-    static deserialize(obj: { a: number, b: number[] }): Meld {
+    static deserialize(obj: { a: number, b: number, c: number[] }): Meld {
         return new Meld(
             obj.a,
-            ...obj.b.map((t: number) => Tile.deserialize(t))
+            obj.b,
+            obj.c.map((t: number) => Tile.deserialize(t))
         );
     }
 
-    serialize(): { a: number, b: number[] } {
+    serialize(): { a: number, b: number, c: number[] } {
         return {
             a: this.meldType,
-            b: this.tiles.map(t => t.serialize())
+            b: this.causedBy,
+            c: this.tiles.map(t => t.serialize())
         };
     }
 
