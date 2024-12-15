@@ -29,13 +29,13 @@ export default function GameProvider(props: React.PropsWithChildren) {
     }, []);
 
     // Debug only
-    // useEffect(() => {
-    //     if (resLoaded && isConnected) {
-    //         socket.emit(EventType.ROOM_CREATE);
-    //         socket.emit(EventType.ROOM_SET_READY, {ready: true});
-    //         socket.emit(EventType.ROOM_START);
-    //     }
-    // }, [isConnected, resLoaded, socket]);
+    useEffect(() => {
+        if (resLoaded && isConnected) {
+            socket.emit(EventType.ROOM_CREATE);
+            socket.emit(EventType.ROOM_SET_READY, {ready: true});
+            socket.emit(EventType.ROOM_START);
+        }
+    }, [isConnected, resLoaded, socket]);
 
     useEffect(() => {
         const socket = io(serverURL);

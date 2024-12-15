@@ -4,7 +4,7 @@ import {GameContext} from "../GameProvider";
 import Button from "../generic/Button";
 import PageType from "./PageType";
 import Frag from "./Frag";
-import CenterDialog from "../generic/CenterDialog";
+import CenterDialog from "../components/generic/CenterDialog";
 
 export default function FragHome(props: {
     in: boolean,
